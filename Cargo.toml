@@ -1,0 +1,13 @@
+[package]
+name = "zene_structs"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+num-traits = "0.2.19"
+zs_macros = { path = "./macros" }
+zs_core = { path = "./core" }
+
+[workspace]
+resolver = "2"
+members = ["core", "macros"]
