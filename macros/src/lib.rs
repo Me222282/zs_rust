@@ -70,11 +70,11 @@ pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             {
                 return self.dot(self);
             }
-            // #[inline]
-            // pub fn squared_distance(self, other: Self) -> S
-            // {
-            //     return (other - self).squared_length();
-            // }
+            #[inline]
+            pub fn squared_distance(self, other: Self) -> S
+            {
+                return (other - self).squared_length();
+            }
         }
         impl<S: num_traits::Float> #name<S>
             where Self: Copy
@@ -84,17 +84,128 @@ pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             {
                 return self.squared_length().sqrt();
             }
-            // #[inline]
-            // pub fn distance(self, other: Self) -> S
-            // {
-            //     return self.distance(other).sqrt();
-            // }
+            #[inline]
+            pub fn distance(self, other: Self) -> S
+            {
+                return self.distance(other).sqrt();
+            }
             #[inline]
             pub fn lerp(self, other: Self, blend: S) -> Self
             {
                 return Self
                 {
                     #(#args: (blend * (self.#args - other.#args)) + other.#args),*
+                };
+            }
+        }
+        
+        impl<S: PartialEq> PartialEq for #name<S>
+        {
+            #[inline]
+            fn eq(&self, other: &Self) -> bool
+            {
+                return #(self.#args == other.#args)&&* ;
+            }
+            #[inline]
+            fn ne(&self, other: &Self) -> bool
+            {
+                return #(self.#args != other.#args)||* ;
+            }
+        }
+        impl<S: num_traits::Zero + PartialEq> num_traits::Zero for #name<S>
+        {
+            #[inline]
+            fn zero() -> Self
+            {
+                return Self
+                {
+                    #(#args: S::zero()),*
+                };
+            }
+            #[inline]
+            fn is_zero(&self) -> bool
+            {
+                return self == &Self::zero();
+            }
+        }
+        impl<S: num_traits::One + PartialEq> num_traits::One for #name<S>
+        {
+            #[inline]
+            fn one() -> Self
+            {
+                return Self
+                {
+                    #(#args: S::one()),*
+                };
+            }
+            #[inline]
+            fn is_one(&self) -> bool
+            {
+                return self == &Self::one();
+            }
+        }
+        impl<S: core::ops::Add<Output = S>> core::ops::Add for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn add(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    #(#args: self.#args + rhs.#args),*
+                };
+            }
+        }
+        impl<S: core::ops::Sub<Output = S>> core::ops::Sub for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn sub(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    #(#args: self.#args - rhs.#args),*
+                };
+            }
+        }
+        impl<S: core::ops::Mul<Output = S>> core::ops::Mul for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn mul(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    #(#args: self.#args * rhs.#args),*
+                };
+            }
+        }
+        impl<S: core::ops::Div<Output = S>> core::ops::Div for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn div(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    #(#args: self.#args / rhs.#args),*
+                };
+            }
+        }
+        impl<S: core::ops::Rem<Output = S>> core::ops::Rem for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn rem(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    #(#args: self.#args % rhs.#args),*
                 };
             }
         }
