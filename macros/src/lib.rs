@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use syn::{parse_macro_input, ItemStruct, LitInt};
 use quote::quote;
 use proc_macro2::{Ident, Span};
-use zs_core::*;
+// use zs_core::*;
 
 // macro_rules! ident_vec {
 //     ($($x:expr),*) => {
@@ -54,6 +54,31 @@ pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             pub fn single(value: S) -> Self
             {
                 return Self { #(#args: value),* };
+            }
+        }
+        // impl<S: num_traits::NumCast> num_traits::NumCast for #name<S>
+        // {
+        //     #[inline]
+        //     fn from<T: num_traits::ToPrimitive>(n: T) -> Option<Self>
+        //     {
+        //         let opt = S::from(n);
+                
+        //         return match opt
+        //         {
+        //             Some(v) => Some(Self
+        //                 {
+        //                     #(#args: v),*
+        //                 })
+        //             None => None
+        //         }
+        //     }
+        // }
+        impl<S: Copy> std::convert::From<S> for #name<S>
+        {
+            #[inline]
+            fn from(value: S) -> Self
+            {
+                return Self::single(value);
             }
         }
         

@@ -11,3 +11,6 @@ zs_core = { path = "./core" }
 [workspace]
 resolver = "2"
 members = ["core", "macros"]
+
+[features]
+use_double = []

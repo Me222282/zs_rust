@@ -8,7 +8,8 @@ mod tests {
 
     #[test]
     fn it_works() {
-        let t = Vector7::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
-        let n = Vector7::single(4.0);
+        let t = Vector7::<f32>::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+        let n = Vector7::<f32>::single(4.0);
+        let x = t + n;
     }
 }
