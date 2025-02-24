@@ -32,12 +32,13 @@ pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
         2 => ident_vec!["x", "y"],
         _ => panic!("Size must be 2 or greater.")
     };
+    let nums: Vec<_> = Numbers { max: size, i: 0 }.collect();
     
     // let selfRef = 
     
     return quote! {
         #(#attrs)*
-        #[derive(Clone, Copy)]
+        #[derive(Clone, Copy, Debug)]
         #vis struct #name<S>
         {
             #(pub #args: S),*
@@ -79,6 +80,28 @@ pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             fn from(value: S) -> Self
             {
                 return Self::single(value);
+            }
+        }
+        impl<S: Copy> std::convert::From<&[S; #li]> for #name<S>
+        {
+            #[inline]
+            fn from(value: &[S; #li]) -> Self
+            {
+                return Self
+                {
+                    #(#args: value[#nums]),*
+                };
+            }
+        }
+        impl<S: Copy> std::convert::From<[S; #li]> for #name<S>
+        {
+            #[inline]
+            fn from(value: [S; #li]) -> Self
+            {
+                return Self
+                {
+                    #(#args: value[#nums]),*
+                };
             }
         }
         
@@ -126,8 +149,8 @@ pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             }
             #[inline]
             pub fn distance(self, other: Self) -> S
-            {
-                return self.distance(other).sqrt();
+            {   
+                return self.squared_distance(other).sqrt();
             }
             #[inline]
             pub fn normalised(self) -> Self
@@ -349,6 +372,28 @@ impl Iterator for Dimension {
         {
             let name = format!("i{ci}");
             return Some(Ident::new(name.as_str(), Span::call_site()));
+        }
+        
+        return None;
+    }
+}
+
+struct Numbers
+{
+    max: usize,
+    i: usize
+}
+impl Iterator for Numbers {
+    type Item = LitInt;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {   
+        let ci = self.i;
+        self.i += 1;
+        if ci < self.max
+        {
+            let index = ci.to_string();
+            return Some(LitInt::new(index.as_str(), Span::call_site()));
         }
         
         return None;
