@@ -4,7 +4,8 @@ use syn::{parse_macro_input, ItemStruct, LitInt};
 use quote::quote;
 use crate::backend::*;
 
-pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
+pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
+{
     let li = syn::parse::<LitInt>(attr).expect("Expected a numerial size.");
     let size = li.base10_parse::<usize>().unwrap();
     
@@ -14,7 +15,7 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
     let vis = &input.vis;
     
     let args = match size {
-        s if s > 4 => Dimension { max: s, i: 0 }.collect(),
+        s if s > 4 => Dimension::new(s, "i").collect(),
         4 => ident_vec!["x", "y", "z", "w"],
         3 => ident_vec!["x", "y", "z"],
         2 => ident_vec!["x", "y"],
@@ -75,8 +76,7 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             #[inline]
             fn from(value: &[S; #li]) -> Self
             {
-                return Self
-                {
+                return Self {
                     #(#args: value[#nums]),*
                 };
             }
@@ -86,10 +86,19 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream {
             #[inline]
             fn from(value: [S; #li]) -> Self
             {
-                return Self
-                {
+                return Self {
                     #(#args: value[#nums]),*
                 };
+            }
+        }
+        impl<S: Copy> std::convert::Into<[S; #li]> for #name<S>
+        {
+            #[inline]
+            fn into(self) -> [S; #li]
+            {
+                return [
+                    #(self.#args),*
+                ];
             }
         }
         

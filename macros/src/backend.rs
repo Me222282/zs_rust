@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use proc_macro2::{Ident, Span};
 use syn::LitInt;
 
@@ -11,10 +13,23 @@ pub(crate) use ident_vec;
 
 pub(crate) struct Dimension
 {
-    pub max: usize,
-    pub i: usize
+    max: usize,
+    i: usize,
+    str: String
 }
-impl Iterator for Dimension {
+impl Dimension
+{
+    pub fn new(max: usize, str: &str) -> Self
+    {
+        return Self {
+            max,
+            i: 0,
+            str: String::from_str(str).unwrap()
+        };
+    }
+}
+impl Iterator for Dimension
+{
     type Item = Ident;
 
     fn next(&mut self) -> Option<Self::Item>
@@ -23,7 +38,7 @@ impl Iterator for Dimension {
         self.i += 1;
         if ci < self.max
         {
-            let name = format!("i{ci}");
+            let name = self.str.clone() + &ci.to_string();
             return Some(Ident::new(name.as_str(), Span::call_site()));
         }
         
@@ -36,7 +51,8 @@ pub(crate) struct Numbers
     pub max: usize,
     pub i: usize
 }
-impl Iterator for Numbers {
+impl Iterator for Numbers
+{
     type Item = LitInt;
 
     fn next(&mut self) -> Option<Self::Item>
