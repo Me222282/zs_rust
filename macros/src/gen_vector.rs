@@ -27,7 +27,7 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
     
     return quote! {
         #(#attrs)*
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq)]
         #vis struct #name<S>
         {
             #(pub #args: S),*
@@ -158,20 +158,6 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
                 {
                     #(#args: self.#args * scale),*
                 };
-            }
-        }
-        
-        impl<S: PartialEq> PartialEq for #name<S>
-        {
-            #[inline]
-            fn eq(&self, other: &Self) -> bool
-            {
-                return #(self.#args == other.#args)&&* ;
-            }
-            #[inline]
-            fn ne(&self, other: &Self) -> bool
-            {
-                return #(self.#args != other.#args)||* ;
             }
         }
         impl<S: num_traits::Zero + PartialEq> num_traits::Zero for #name<S>

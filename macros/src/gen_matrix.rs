@@ -38,7 +38,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
     
     return quote! {
         #(#attrs)*
-        #[derive(Clone, Copy, Debug)]
+        #[derive(Clone, Copy, Debug, PartialEq)]
         #vis struct #name<S>
         {
             data: [[S; #row_li]; #col_li]
@@ -88,18 +88,5 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
             }
         }
         
-        impl<S: PartialEq> PartialEq for #name<S>
-        {
-            #[inline]
-            fn eq(&self, other: &Self) -> bool
-            {
-                return self.data == other.data;
-            }
-            #[inline]
-            fn ne(&self, other: &Self) -> bool
-            {
-                return self.data != other.data;
-            }
-        }
     }.into();
 }
