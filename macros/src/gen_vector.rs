@@ -337,6 +337,89 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
                 };
             }
         }
+        impl<S: core::ops::AddAssign> core::ops::AddAssign for #name<S>
+        {
+            #[inline]
+            fn add_assign(&mut self, rhs: Self)
+            {
+                #(self.#args += rhs.#args);*
+            }
+        }
+        impl<S: core::ops::SubAssign> core::ops::SubAssign for #name<S>
+        {
+            #[inline]
+            fn sub_assign(&mut self, rhs: Self)
+            {
+                #(self.#args -= rhs.#args);*
+            }
+        }
+        impl<S: core::ops::MulAssign> core::ops::MulAssign for #name<S>
+        {
+            #[inline]
+            fn mul_assign(&mut self, rhs: Self)
+            {
+                #(self.#args *= rhs.#args);*
+            }
+        }
+        impl<S: core::ops::DivAssign> core::ops::DivAssign for #name<S>
+        {
+            #[inline]
+            fn div_assign(&mut self, rhs: Self)
+            {
+                #(self.#args /= rhs.#args);*
+            }
+        }
+        impl<S: core::ops::RemAssign> core::ops::RemAssign for #name<S>
+        {
+            #[inline]
+            fn rem_assign(&mut self, rhs: Self)
+            {
+                #(self.#args %= rhs.#args);*
+            }
+        }
+        impl<S: core::ops::AddAssign + Copy> core::ops::AddAssign<S> for #name<S>
+        {
+            #[inline]
+            fn add_assign(&mut self, rhs: S)
+            {
+                #(self.#args += rhs);*
+            }
+        }
+        impl<S: core::ops::SubAssign + Copy> core::ops::SubAssign<S> for #name<S>
+        {
+            #[inline]
+            fn sub_assign(&mut self, rhs: S)
+            {
+                #(self.#args -= rhs);*
+            }
+        }
+        impl<S: core::ops::MulAssign + Copy> core::ops::MulAssign<S> for #name<S>
+        {
+            #[inline]
+            fn mul_assign(&mut self, rhs: S)
+            {
+                #(self.#args *= rhs);*
+            }
+        }
+        impl<S: core::ops::Div<Output = S> +
+            core::ops::MulAssign + num_traits::One +
+            Copy> core::ops::DivAssign<S> for #name<S>
+        {
+            #[inline]
+            fn div_assign(&mut self, rhs: S)
+            {
+                let div = S::one() / rhs;
+                #(self.#args *= div);*
+            }
+        }
+        impl<S: core::ops::RemAssign + Copy> core::ops::RemAssign<S> for #name<S>
+        {
+            #[inline]
+            fn rem_assign(&mut self, rhs: S)
+            {
+                #(self.#args %= rhs);*
+            }
+        }
         impl<S: core::ops::Neg<Output = S>> core::ops::Neg for #name<S>
         {
             type Output = Self;

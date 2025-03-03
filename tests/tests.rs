@@ -12,9 +12,11 @@ mod tests {
     #[test]
     fn construct_add()
     {
-        let t = Vector7::<f32>::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
+        let mut t = Vector7::<f32>::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
         let n = Vector7::<f32>::single(4.0);
         let x = t + n;
+        t += n;
+        assert_eq!(x, t);
         assert_eq!(x, Vector7::from([4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]));
     }
     #[test]
