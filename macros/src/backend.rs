@@ -51,6 +51,16 @@ pub(crate) struct Numbers
     pub max: usize,
     pub i: usize
 }
+impl Numbers
+{
+    pub fn new(max: usize) -> Self
+    {
+        return Self {
+            max,
+            i: 0
+        };
+    }
+}
 impl Iterator for Numbers
 {
     type Item = LitInt;

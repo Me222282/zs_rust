@@ -38,7 +38,7 @@ mod tests {
         assert_eq!(q, Q);
     }
     #[test]
-    fn matrix_ne()
+    fn matrix_eq()
     {
         let t = Vector7::<f32>::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
         let n = Vector7::<f32>::single(4.0);
@@ -47,5 +47,6 @@ mod tests {
         let q = Matrix7::<f32>::new(t, n, x, t, n, x, n);
         let Q = Matrix7::<f32>::new(t, n, x, t, n, x, n);
         assert_eq!(q != Q, false);
+        assert_eq!(q == Q, true);
     }
 }

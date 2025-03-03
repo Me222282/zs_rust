@@ -26,6 +26,8 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
     let rows: Vec<_> = Dimension::new(row, "row").collect();
     let cols: Vec<_> = Dimension::new(col, "col").collect();
     
+    let y_nums: Vec<_> = Numbers::new(row).collect();
+    
     let vec_row = Ident::new(format!("Vector{row}").as_str(), Span::call_site());
     let vec_col = Ident::new(format!("Vector{col}").as_str(), Span::call_site());
     
@@ -60,6 +62,18 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
             {
                 return Self {
                     data: *value
+                };
+            }
+        }
+        impl<S: Copy> std::convert::From<&[&[S; #row_li]; #col_li]> for #name<S>
+        {
+            #[inline]
+            fn from(value: &[&[S; #row_li]; #col_li]) -> Self
+            {
+                return Self {
+                    data: [
+                        #(*value[#y_nums]),*
+                    ]
                 };
             }
         }

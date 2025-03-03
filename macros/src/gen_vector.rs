@@ -21,7 +21,7 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
         2 => ident_vec!["x", "y"],
         _ => panic!("Size must be 2 or greater.")
     };
-    let nums: Vec<_> = Numbers { max: size, i: 0 }.collect();
+    let nums: Vec<_> = Numbers::new(size).collect();
     
     // let selfRef = 
     
