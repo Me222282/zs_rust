@@ -59,6 +59,10 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
                     ]
                 };
             }
+            // #(pub fn #rows(&self) -> #vec_col<S>
+            // {
+            //     return #vec_col<S>
+            // })*
         }
         impl<S: Copy> std::convert::From<&[[S; #row_li]; #col_li]> for #name<S>
         {
@@ -123,7 +127,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
             #[inline]
             fn index(&self, index: usize) -> &S
             {
-                if (index >= #size)
+                if index >= #size
                 {
                     panic!("index out of bounds");
                 }
@@ -141,7 +145,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
             #[inline]
             fn index_mut(&mut self, index: usize) -> &mut S
             {
-                if (index >= #size)
+                if index >= #size
                 {
                     panic!("index out of bounds");
                 }

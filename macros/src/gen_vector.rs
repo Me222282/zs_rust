@@ -91,6 +91,23 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
                 };
             }
         }
+        impl<S: Copy> std::convert::TryFrom<&[S]> for #name<S>
+        {
+            type Error = zs_core::SliceToVectorError;
+            
+            #[inline]
+            fn try_from(value: &[S]) -> Result<Self, Self::Error>
+            {
+                if value.len() != #li
+                {
+                    return Err(zs_core::SliceToVectorError {});
+                }
+                
+                return Ok(Self {
+                    #(#args: value[#nums]),*
+                });
+            }
+        }
         impl<S: Copy> std::convert::Into<[S; #li]> for #name<S>
         {
             #[inline]
@@ -101,6 +118,16 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
                 ];
             }
         }
+        // impl<S: Copy> std::convert::Into<&[S]> for #name<S>
+        // {
+        //     #[inline]
+        //     fn into(self) -> &[S]
+        //     {
+        //         return &[
+        //             #(self.#args),*
+        //         ];
+        //     }
+        // }
         
         impl<S: num_traits::Num> #name<S>
             where Self: Copy
