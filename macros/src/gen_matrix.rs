@@ -28,8 +28,13 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
     
     let y_nums: Vec<_> = Numbers::new(row).collect();
     
+    let range_start: Vec<_> = MatIndex::new(col, row, 0).collect();
+    let range_end: Vec<_> = MatIndex::new(row, col, col).collect();
+    
     let vec_row = Ident::new(format!("Vector{row}").as_str(), Span::call_site());
     let vec_col = Ident::new(format!("Vector{col}").as_str(), Span::call_site());
+    
+    let size = LitInt::new((row * col).to_string().as_str(), Span::call_site());
     
     let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
@@ -85,6 +90,86 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
                 return Self {
                     data: value
                 };
+            }
+        }
+        impl<S: Copy> std::convert::From<[S; #size]> for #name<S>
+        {
+            #[inline]
+            fn from(value: [S; #size]) -> Self
+            {
+                return Self {
+                    data: [
+                        #(value[#range_start..#range_end].try_into().unwrap()),*
+                    ]
+                };
+            }
+        }
+        impl<S: Copy> std::convert::From<&[S; #size]> for #name<S>
+        {
+            #[inline]
+            fn from(value: &[S; #size]) -> Self
+            {
+                return Self {
+                    data: [
+                        #(value[#range_start..#range_end].try_into().unwrap()),*
+                    ]
+                };
+            }
+        }
+        impl<S: Copy> std::ops::Index<usize> for #name<S>
+        {
+            type Output = S;
+            
+            #[inline]
+            fn index(&self, index: usize) -> &S
+            {
+                if (index >= #size)
+                {
+                    panic!("index out of bounds");
+                }
+                let dat = &self.data[0][0];
+                let r: &S;
+                unsafe
+                {
+                    r = &*(dat as *const S).add(index);
+                }
+                return r;
+            }
+        }
+        impl<S: Copy> std::ops::IndexMut<usize> for #name<S>
+        {
+            #[inline]
+            fn index_mut(&mut self, index: usize) -> &mut S
+            {
+                if (index >= #size)
+                {
+                    panic!("index out of bounds");
+                }
+                let dat = &mut self.data[0][0];
+                let r: &mut S;
+                unsafe
+                {
+                    r = &mut *(dat as *mut S).add(index);
+                }
+                return r;
+            }
+        }
+        impl<S: Copy> std::ops::Index<[usize; 2]> for #name<S>
+        {
+            type Output = S;
+            
+            #[inline]
+            fn index(&self, index: [usize; 2]) -> &S
+            {
+                return &self.data[index[0]][index[1]];
+            }
+        }
+        impl<S: Copy> std::ops::IndexMut<[usize; 2]> for #name<S>
+        {
+            #[inline]
+            fn index_mut(&mut self, index: [usize; 2]) -> &mut S
+            {
+                return &mut self.data[index[0]][index[1]];
             }
         }
         

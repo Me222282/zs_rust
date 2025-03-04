@@ -51,4 +51,41 @@ mod tests {
         assert_eq!(q != Q, false);
         assert_eq!(q == Q, true);
     }
+    
+    #[test]
+    fn matrix_index1()
+    {
+        let mut array = [0; 49];
+        for x in 0..49
+        {
+            array[x] = x;
+        }
+        let mat = Matrix7::from(&array);
+        
+        for i in 0..49
+        {
+            assert_eq!(array[i], mat[i]);
+        }
+    }
+    #[test]
+    fn matrix_index2()
+    {
+        let mut array = [[0; 7]; 7];
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                array[x][y] = x * y + x + y;
+            }
+        }
+        let mat = Matrix7::from(&array);
+        
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                assert_eq!(array[x][y], mat[[x, y]]);
+            }
+        }
+    }
 }

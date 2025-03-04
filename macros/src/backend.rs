@@ -78,3 +78,40 @@ impl Iterator for Numbers
         return None;
     }
 }
+
+pub(crate) struct MatIndex
+{
+    pub count: usize,
+    pub i: usize,
+    pub size: usize,
+    pub offset: usize
+}
+impl MatIndex
+{
+    pub fn new(s1: usize, s2: usize, offset: usize) -> Self
+    {
+        return Self {
+            count: s1,
+            i: 0,
+            size: s2,
+            offset
+        };
+    }
+}
+impl Iterator for MatIndex
+{
+    type Item = LitInt;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {   
+        let ci = self.i;
+        self.i += 1;
+        if ci < self.count
+        {
+            let value = (ci * self.size + self.offset).to_string();
+            return Some(LitInt::new(value.as_str(), Span::call_site()));
+        }
+        
+        return None;
+    }
+}
