@@ -1,6 +1,7 @@
 #[cfg(test)]
 mod tests {
     use zs_macros::{generate_matrix, generate_matrix_square, generate_vector};
+    use num_traits::Zero;
     // use zs_core;
     
     #[generate_vector(7)]
@@ -191,5 +192,13 @@ mod tests {
         let q = Matrix7::from(&trans);
         
         assert_eq!(q, mat);
+    }
+    #[test]
+    fn matrix_zero()
+    {
+        let zero = Matrix7::from([[0; 7]; 7]);
+        let mat = Matrix7::<usize>::zero();
+        
+        assert_eq!(zero, mat);
     }
 }

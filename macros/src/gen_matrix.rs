@@ -366,21 +366,21 @@ pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
             }
         }
         
-        // impl<S: num_traits::Zero + PartialEq> num_traits::Zero for #name<S>
-        // {
-        //     #[inline]
-        //     fn zero() -> Self
-        //     {
-        //         return Self {
-        //             data: [[S::zero(); #row_li]; #col_li]
-        //         };
-        //     }
-        //     #[inline]
-        //     fn is_zero(&self) -> bool
-        //     {
-        //         return self == &Self::zero();
-        //     }
-        // }
+        impl<S: num_traits::Zero + PartialEq + Copy> num_traits::Zero for #name<S>
+        {
+            #[inline]
+            fn zero() -> Self
+            {
+                return Self {
+                    data: [[S::zero(); #row_li]; #col_li]
+                };
+            }
+            #[inline]
+            fn is_zero(&self) -> bool
+            {
+                return self == &Self::zero();
+            }
+        }
         
     };
 }
