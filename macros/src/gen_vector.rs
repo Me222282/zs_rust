@@ -23,6 +23,15 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
     };
     let nums: Vec<_> = Numbers::new(size).collect();
     
+    let unit_names = match size {
+        s if s > 4 => Dimension::new(s, "unit_i").collect(),
+        4 => ident_vec!["unit_x", "unit_y", "unit_z", "unit_w"],
+        3 => ident_vec!["unit_x", "unit_y", "unit_z"],
+        2 => ident_vec!["unit_x", "unit_y"],
+        _ => panic!("Size must be 2 or greater.")
+    };
+    let units: Vec<_> = MatIdent::new(size, size).collect();
+    
     // let selfRef = 
     
     return quote! {
@@ -45,6 +54,16 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
             {
                 return Self { #(#args: value),* };
             }
+        }
+        impl<S: num_traits::One + num_traits::Zero + Copy> #name<S>
+        {
+            #(
+            #[inline]
+            pub fn #unit_names() -> Self
+            {
+                return Self::new(#(S::#units()),*);
+            }
+            )*
         }
         // impl<S: num_traits::NumCast> num_traits::NumCast for #name<S>
         // {

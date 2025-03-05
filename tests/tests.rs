@@ -20,6 +20,19 @@ mod tests {
         assert_eq!(x, Vector7::from([4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]));
     }
     #[test]
+    fn vector_units()
+    {
+        let mat = Matrix7::<usize>::identity();
+        
+        assert_eq!(Vector7::<usize>::unit_i0(), mat.row0());
+        assert_eq!(Vector7::<usize>::unit_i1(), mat.row1());
+        assert_eq!(Vector7::<usize>::unit_i2(), mat.row2());
+        assert_eq!(Vector7::<usize>::unit_i3(), mat.row3());
+        assert_eq!(Vector7::<usize>::unit_i4(), mat.row4());
+        assert_eq!(Vector7::<usize>::unit_i5(), mat.row5());
+        assert_eq!(Vector7::<usize>::unit_i6(), mat.row6());
+    }
+    #[test]
     fn matrix_construct()
     {
         let t = Vector7::<f32>::new(0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0);
