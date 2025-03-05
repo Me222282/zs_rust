@@ -157,3 +157,44 @@ impl Iterator for MatIdent
         return None;
     }
 }
+pub(crate) struct Grid
+{
+    pub rows: usize,
+    pub cols: usize,
+    i: usize,
+    
+}
+impl Grid
+{
+    pub fn new(rows: usize, cols: usize) -> Self
+    {
+        return Self {
+            rows,
+            cols,
+            i: 0
+        };
+    }
+}
+impl Iterator for Grid
+{
+    type Item = Vec<LitInt>;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        let ci = self.i;
+        self.i += 1;
+        if ci < self.rows
+        {
+            let mut v = Vec::<LitInt>::with_capacity(self.cols);
+            for x in 0..self.cols
+            {
+                let value = (ci + x * self.rows).to_string();
+                let li = LitInt::new(value.as_str(), Span::call_site());
+                v.push(li);
+            }
+            return Some(v);
+        }
+        
+        return None;
+    }
+}

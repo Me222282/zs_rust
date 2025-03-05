@@ -88,7 +88,7 @@ mod tests {
         {
             for y in 0..7
             {
-                array[x][y] = x * y + x + y;
+                array[x][y] = x * y + 2 * x + 3 * y;
             }
         }
         let mat = Matrix7::from(&array);
@@ -109,7 +109,7 @@ mod tests {
         {
             for y in 0..7
             {
-                array[x][y] = x * y + x + y;
+                array[x][y] = x * y + 2 * x + 3 * y;
             }
         }
         let mat = Matrix7::from(&array);
@@ -134,5 +134,35 @@ mod tests {
                 assert_eq!(value, mat[[x, y]]);
             }
         }
+    }
+    #[test]
+    fn matrix_col()
+    {
+        let mut array = [[0; 7]; 7];
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                array[x][y] = x * y + 2 * x + 3 * y;
+            }
+        }
+        let mat = Matrix7::from(&array);
+        
+        let mut trans = [[0; 7]; 7];
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                trans[y][x] = array[x][y];
+            }
+        }
+        
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[0]), mat.col0());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[1]), mat.col1());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[2]), mat.col2());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[3]), mat.col3());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[4]), mat.col4());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[5]), mat.col5());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[6]), mat.col6());
     }
 }

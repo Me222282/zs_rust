@@ -2,7 +2,6 @@ use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use syn::{parse::Parser, parse_macro_input, punctuated::Punctuated, ItemStruct, LitInt, Token};
 use quote::quote;
-use zs_core::Num;
 use crate::backend::*;
 
 pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
@@ -21,8 +20,6 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
     let row = row_li.base10_parse::<usize>().unwrap();
     let col = col_li.base10_parse::<usize>().unwrap();
     
-    // let row_num: Vec<_> = Numbers { max: row, i: 0 }.collect();
-    // let col_num: Vec<_> = Numbers { max: col, i: 0 }.collect();
     let rows: Vec<_> = Dimension::new(row, "row").collect();
     let cols: Vec<_> = Dimension::new(col, "col").collect();
     
@@ -32,6 +29,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
     let range_end: Vec<_> = MatIndex::new(row, col, col).collect();
     
     let identity: Vec<_> = MatIdent::new(row, col).collect();
+    let grid: Vec<_> = Grid::new(row, col).collect();
     
     let vec_row = Ident::new(format!("Vector{row}").as_str(), Span::call_site());
     let vec_col = Ident::new(format!("Vector{col}").as_str(), Span::call_site());
@@ -67,6 +65,15 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
             pub fn #rows(&self) -> #vec_col<S>
             {
                 return #vec_col::<S>::from(self.data[#y_nums]);
+            })*
+            
+            #(
+            #[inline]
+            pub fn #cols(&self) -> #vec_row<S>
+            {
+                return #vec_row::<S>::new(
+                    #(self[#grid]),*
+                );
             })*
         }
         impl<S: num_traits::One + num_traits::Zero> #name<S>
