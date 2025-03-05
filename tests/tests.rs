@@ -88,4 +88,25 @@ mod tests {
             }
         }
     }
+    #[test]
+    fn matrix_row()
+    {
+        let mut array = [[0; 7]; 7];
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                array[x][y] = x * y + x + y;
+            }
+        }
+        let mat = Matrix7::from(&array);
+        
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[0]), mat.row0());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[1]), mat.row1());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[2]), mat.row2());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[3]), mat.row3());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[4]), mat.row4());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[5]), mat.row5());
+        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[6]), mat.row6());
+    }
 }

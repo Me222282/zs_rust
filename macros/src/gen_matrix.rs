@@ -59,10 +59,10 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
                     ]
                 };
             }
-            // #(pub fn #rows(&self) -> #vec_col<S>
-            // {
-            //     return #vec_col<S>
-            // })*
+            #(pub fn #rows(&self) -> #vec_col<S>
+            {
+                return #vec_col::<S>::from(self.data[#y_nums]);
+            })*
         }
         impl<S: Copy> std::convert::From<&[[S; #row_li]; #col_li]> for #name<S>
         {
