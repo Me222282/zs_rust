@@ -33,7 +33,7 @@ impl Iterator for Dimension
     type Item = Ident;
 
     fn next(&mut self) -> Option<Self::Item>
-    {   
+    {
         let ci = self.i;
         self.i += 1;
         if ci < self.max
@@ -66,7 +66,7 @@ impl Iterator for Numbers
     type Item = LitInt;
 
     fn next(&mut self) -> Option<Self::Item>
-    {   
+    {
         let ci = self.i;
         self.i += 1;
         if ci < self.max
@@ -103,13 +103,55 @@ impl Iterator for MatIndex
     type Item = LitInt;
 
     fn next(&mut self) -> Option<Self::Item>
-    {   
+    {
         let ci = self.i;
         self.i += 1;
         if ci < self.count
         {
             let value = (ci * self.size + self.offset).to_string();
             return Some(LitInt::new(value.as_str(), Span::call_site()));
+        }
+        
+        return None;
+    }
+}
+
+pub(crate) struct MatIdent
+{
+    pub rows: usize,
+    pub cols: usize,
+    i: usize,
+    
+}
+impl MatIdent
+{
+    pub fn new(rows: usize, cols: usize) -> Self
+    {
+        return Self {
+            rows,
+            cols,
+            i: 0
+        };
+    }
+}
+impl Iterator for MatIdent
+{
+    type Item = Vec<Ident>;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        let ci = self.i;
+        self.i += 1;
+        if ci < self.rows
+        {
+            let mut v = Vec::<Ident>::with_capacity(self.cols);
+            for x in 0..self.cols
+            {
+                let value = if x == ci { "one" } else { "zero" };
+                let li = Ident::new(value, Span::call_site());
+                v.push(li);
+            }
+            return Some(v);
         }
         
         return None;

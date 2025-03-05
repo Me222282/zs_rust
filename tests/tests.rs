@@ -109,4 +109,17 @@ mod tests {
         assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[5]), mat.row5());
         assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[6]), mat.row6());
     }
+    #[test]
+    fn matrix_ident()
+    {
+        let mat = Matrix7::<usize>::identity();
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                let value = if x == y { 1 } else { 0 };
+                assert_eq!(value, mat[[x, y]]);
+            }
+        }
+    }
 }
