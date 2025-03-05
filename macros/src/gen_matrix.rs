@@ -53,6 +53,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
         
         impl<S: Copy> #name<S>
         {
+            #[inline]
             pub fn new(#(#rows: #vec_col<S>),*) -> Self
             {
                 return Self {
@@ -61,13 +62,16 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
                     ]
                 };
             }
-            #(pub fn #rows(&self) -> #vec_col<S>
+            #(
+            #[inline]
+            pub fn #rows(&self) -> #vec_col<S>
             {
                 return #vec_col::<S>::from(self.data[#y_nums]);
             })*
         }
         impl<S: num_traits::One + num_traits::Zero> #name<S>
         {
+            #[inline]
             pub fn identity() -> Self
             {
                 return Self {
