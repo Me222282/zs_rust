@@ -29,7 +29,9 @@ pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
     let range_end: Vec<_> = MatIndex::new(row, col, col).collect();
     
     let identity: Vec<_> = MatIdent::new(row, col).collect();
-    let grid: Vec<_> = Grid::new(row, col).collect();
+    let col_grid: Vec<_> = GridInv::new(row, col).collect();
+    
+    let row_grid: Vec<_> = Grid::new(row, col).collect();
     
     let vec_row = Ident::new(format!("Vector{row}").as_str(), Span::call_site());
     let vec_col = Ident::new(format!("Vector{col}").as_str(), Span::call_site());
@@ -72,7 +74,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
             pub fn #cols(&self) -> #vec_row<S>
             {
                 return #vec_row::<S>::new(
-                    #(self[#grid]),*
+                    #(self[#col_grid]),*
                 );
             })*
         }
@@ -198,6 +200,187 @@ pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
                 return &mut self.data[index[0]][index[1]];
             }
         }
+        
+        impl<S: core::ops::Add<Output = S> + Copy> core::ops::Add for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn add(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(self[#row_grid] + rhs[#row_grid]),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::Sub<Output = S> + Copy> core::ops::Sub for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn sub(self, rhs: Self) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(self[#row_grid] - rhs[#row_grid]),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::Add<Output = S> + Copy> core::ops::Add<S> for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn add(self, rhs: S) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(self[#row_grid] + rhs),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::Sub<Output = S> + Copy> core::ops::Sub<S> for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn sub(self, rhs: S) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(self[#row_grid] - rhs),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::Mul<Output = S> + Copy> core::ops::Mul<S> for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn mul(self, rhs: S) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(self[#row_grid] * rhs),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::Div<Output = S> + num_traits::One + Copy> core::ops::Div<S> for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn div(self, rhs: S) -> Self
+            {
+                let div = S::one() / rhs;
+                return Self
+                {
+                    data: [#([#(self[#row_grid] * rhs),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::Rem<Output = S> + Copy> core::ops::Rem<S> for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn rem(self, rhs: S) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(self[#row_grid] % rhs),*]),*]
+                };
+            }
+        }
+        impl<S: core::ops::AddAssign + Copy> core::ops::AddAssign for #name<S>
+        {
+            #[inline]
+            fn add_assign(&mut self, rhs: Self)
+            {
+                #(#(self[#row_grid] += rhs[#row_grid]);*);*
+            }
+        }
+        impl<S: core::ops::SubAssign + Copy> core::ops::SubAssign for #name<S>
+        {
+            #[inline]
+            fn sub_assign(&mut self, rhs: Self)
+            {
+                #(#(self[#row_grid] -= rhs[#row_grid]);*);*
+            }
+        }
+        impl<S: core::ops::AddAssign + Copy> core::ops::AddAssign<S> for #name<S>
+        {
+            #[inline]
+            fn add_assign(&mut self, rhs: S)
+            {
+                #(#(self[#row_grid] += rhs);*);*
+            }
+        }
+        impl<S: core::ops::SubAssign + Copy> core::ops::SubAssign<S> for #name<S>
+        {
+            #[inline]
+            fn sub_assign(&mut self, rhs: S)
+            {
+                #(#(self[#row_grid] -= rhs);*);*
+            }
+        }
+        impl<S: core::ops::MulAssign + Copy> core::ops::MulAssign<S> for #name<S>
+        {
+            #[inline]
+            fn mul_assign(&mut self, rhs: S)
+            {
+                #(#(self[#row_grid] *= rhs);*);*
+            }
+        }
+        impl<S: core::ops::Div<Output = S> +
+            core::ops::MulAssign + num_traits::One +
+            Copy> core::ops::DivAssign<S> for #name<S>
+        {
+            #[inline]
+            fn div_assign(&mut self, rhs: S)
+            {
+                let div = S::one() / rhs;
+                #(#(self[#row_grid] *= rhs);*);*
+            }
+        }
+        impl<S: core::ops::RemAssign + Copy> core::ops::RemAssign<S> for #name<S>
+        {
+            #[inline]
+            fn rem_assign(&mut self, rhs: S)
+            {
+                #(#(self[#row_grid] %= rhs);*);*
+            }
+        }
+        impl<S: core::ops::Neg<Output = S> + Copy> core::ops::Neg for #name<S>
+        {
+            type Output = Self;
+            
+            #[inline]
+            fn neg(self) -> Self
+            {
+                return Self
+                {
+                    data: [#([#(-self[#row_grid]),*]),*]
+                };
+            }
+        }
+        
+        // impl<S: num_traits::Zero + PartialEq> num_traits::Zero for #name<S>
+        // {
+        //     #[inline]
+        //     fn zero() -> Self
+        //     {
+        //         return Self {
+        //             data: [[S::zero(); #row_li]; #col_li]
+        //         };
+        //     }
+        //     #[inline]
+        //     fn is_zero(&self) -> bool
+        //     {
+        //         return self == &Self::zero();
+        //     }
+        // }
         
     };
 }
