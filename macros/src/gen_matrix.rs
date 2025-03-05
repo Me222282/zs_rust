@@ -1,10 +1,10 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use syn::{parse::Parser, parse_macro_input, punctuated::Punctuated, ItemStruct, LitInt, Token};
+use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token};
 use quote::quote;
 use crate::backend::*;
 
-pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
+pub(crate) fn gen_matrix(attr: TokenStream, input: ItemStruct) -> proc_macro2::TokenStream
 {
     let args_parsed = Punctuated::<LitInt, Token![,]>::parse_terminated
         .parse2(attr.into())
@@ -36,7 +36,7 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
     
     let size = LitInt::new((row * col).to_string().as_str(), Span::call_site());
     
-    let input = parse_macro_input!(item as ItemStruct);
+    // let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
     let attrs = &input.attrs;
     let vis = &input.vis;
@@ -199,5 +199,5 @@ pub(crate) fn gen_matrix(attr: TokenStream, item: TokenStream) -> TokenStream
             }
         }
         
-    }.into();
+    };
 }

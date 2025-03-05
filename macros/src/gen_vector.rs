@@ -1,15 +1,15 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use syn::{parse_macro_input, ItemStruct, LitInt};
+use syn::{ItemStruct, LitInt};
 use quote::quote;
 use crate::backend::*;
 
-pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
+pub(crate) fn gen_vector(attr: TokenStream, input: ItemStruct) -> proc_macro2::TokenStream
 {
     let li = syn::parse::<LitInt>(attr).expect("Expected a numerial size.");
     let size = li.base10_parse::<usize>().unwrap();
     
-    let input = parse_macro_input!(item as ItemStruct);
+    // let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
     let attrs = &input.attrs;
     let vis = &input.vis;
@@ -465,5 +465,5 @@ pub(crate) fn gen_vector(attr: TokenStream, item: TokenStream) -> TokenStream
                 };
             }
         }
-    }.into();
+    };
 }
