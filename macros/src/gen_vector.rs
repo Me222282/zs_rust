@@ -4,7 +4,7 @@ use syn::{ItemStruct, LitInt};
 use quote::quote;
 use crate::backend::*;
 
-pub(crate) fn gen_vector(attr: TokenStream, input: ItemStruct) -> proc_macro2::TokenStream
+pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::TokenStream
 {
     let li = syn::parse::<LitInt>(attr).expect("Expected a numerial size.");
     let size = li.base10_parse::<usize>().unwrap();

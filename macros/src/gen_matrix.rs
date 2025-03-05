@@ -4,7 +4,7 @@ use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token};
 use quote::quote;
 use crate::backend::*;
 
-pub(crate) fn gen_matrix(attr: TokenStream, input: ItemStruct) -> proc_macro2::TokenStream
+pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::TokenStream
 {
     let args_parsed = Punctuated::<LitInt, Token![,]>::parse_terminated
         .parse2(attr.into())

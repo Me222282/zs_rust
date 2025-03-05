@@ -1,12 +1,12 @@
 #[cfg(test)]
 mod tests {
-    use zs_macros::{generate_matrix, generate_vector};
+    use zs_macros::{generate_matrix, generate_matrix_square, generate_vector};
     // use zs_core;
     
     #[generate_vector(7)]
     struct Vector7 {}
     
-    #[generate_matrix(7, 7)]
+    #[generate_matrix_square(7)]
     struct Matrix7 {}
 
     #[test]
@@ -40,7 +40,7 @@ mod tests {
         let x = Vector7::from([4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]);
         
         let q = Matrix7::<f32>::new(t, n, x, t, n, x, n);
-        let Q = Matrix7::<f32>::from([
+        let p = Matrix7::<f32>::from([
             [0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0],
             [4.0; 7],
             [4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
@@ -50,7 +50,7 @@ mod tests {
             [4.0; 7]
         ]);
         
-        assert_eq!(q, Q);
+        assert_eq!(q, p);
     }
     #[test]
     fn matrix_eq()
@@ -60,9 +60,9 @@ mod tests {
         let x = Vector7::from([4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]);
         
         let q = Matrix7::<f32>::new(t, n, x, t, n, x, n);
-        let Q = Matrix7::<f32>::new(t, n, x, t, n, x, n);
-        assert_eq!(q != Q, false);
-        assert_eq!(q == Q, true);
+        let p = Matrix7::<f32>::new(t, n, x, t, n, x, n);
+        assert_eq!(q != p, false);
+        assert_eq!(q == p, true);
     }
     
     #[test]
@@ -164,5 +164,32 @@ mod tests {
         assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[4]), mat.col4());
         assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[5]), mat.col5());
         assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[6]), mat.col6());
+    }
+    #[test]
+    fn matrix_trans()
+    {
+        let mut array = [[0; 7]; 7];
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                array[x][y] = x * y + 2 * x + 3 * y;
+            }
+        }
+        let mat = Matrix7::from(&array);
+        let mat = mat.transpose();
+        
+        let mut trans = [[0; 7]; 7];
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                trans[y][x] = array[x][y];
+            }
+        }
+        
+        let q = Matrix7::from(&trans);
+        
+        assert_eq!(q, mat);
     }
 }
