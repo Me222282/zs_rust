@@ -1,6 +1,8 @@
-use std::str::FromStr;
+use std::marker::PhantomData;
+use std::str::FromStr; 
 
 use proc_macro2::{Ident, Span};
+use quote::ToTokens;
 use syn::LitInt;
 
 macro_rules! ident_vec {
@@ -116,26 +118,32 @@ impl Iterator for MatIndex
     }
 }
 
-pub(crate) struct MatIdent
+pub(crate) struct MatIdent<'a, T>
 {
     pub rows: usize,
     pub cols: usize,
-    i: usize
+    i: usize,
+    zero: &'a T,
+    one: &'a T,
+    pham: PhantomData<&'a T>
 }
-impl MatIdent
+impl<'a, T> MatIdent<'a, T>
 {
-    pub fn new(rows: usize, cols: usize) -> Self
+    pub fn new(rows: usize, cols: usize, zero: &'a T, one: &'a T) -> Self
     {
         return Self {
             rows,
             cols,
-            i: 0
+            i: 0,
+            zero,
+            one,
+            pham: PhantomData
         };
     }
 }
-impl Iterator for MatIdent
+impl<'a, T: ToTokens + 'a> Iterator for MatIdent<'a, T>
 {
-    type Item = Vec<Ident>;
+    type Item = Vec<&'a T>;
 
     fn next(&mut self) -> Option<Self::Item>
     {
@@ -143,12 +151,17 @@ impl Iterator for MatIdent
         self.i += 1;
         if ci < self.rows
         {
-            let mut v = Vec::<Ident>::with_capacity(self.cols);
+            let mut v = Vec::<&'a T>::with_capacity(self.cols);
             for x in 0..self.cols
             {
-                let value = if x == ci { "one" } else { "zero" };
-                let li = Ident::new(value, Span::call_site());
-                v.push(li);
+                if x == ci
+                {
+                    v.push(self.one);
+                }
+                else
+                {
+                    v.push(self.zero);
+                };
             }
             return Some(v);
         }

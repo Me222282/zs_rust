@@ -30,7 +30,9 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
         2 => ident_vec!["unit_x", "unit_y"],
         _ => panic!("Size must be 2 or greater.")
     };
-    let units: Vec<_> = MatIdent::new(size, size).collect();
+    let uni_one = Ident::new("one", Span::call_site());
+    let uni_zero = Ident::new("zero", Span::call_site());
+    let units: Vec<_> = MatIdent::<Ident>::new(size, size, &uni_zero, &uni_one).collect();
     
     // let selfRef = 
     

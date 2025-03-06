@@ -28,7 +28,9 @@ pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
     let range_start: Vec<_> = MatIndex::new(col, row, 0).collect();
     let range_end: Vec<_> = MatIndex::new(row, col, col).collect();
     
-    let identity: Vec<_> = MatIdent::new(row, col).collect();
+    let unit_one = Ident::new("one", Span::call_site());
+    let unit_zero = Ident::new("zero", Span::call_site());
+    let identity: Vec<_> = MatIdent::<Ident>::new(row, col, &unit_zero, &unit_one).collect();
     let col_grid: Vec<_> = GridInv::new(row, col).collect();
     
     let row_grid: Vec<_> = Grid::new(row, col).collect();

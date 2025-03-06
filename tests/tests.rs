@@ -201,4 +201,18 @@ mod tests {
         
         assert_eq!(zero, mat);
     }
+    #[test]
+    fn matrix_scale()
+    {
+        let s = 74;
+        let mat = Matrix7::<usize>::create_scale(s);
+        for x in 0..7
+        {
+            for y in 0..7
+            {
+                let value = if x == y { s } else { 0 };
+                assert_eq!(value, mat[[x, y]]);
+            }
+        }
+    }
 }
