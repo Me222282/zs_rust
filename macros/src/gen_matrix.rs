@@ -387,5 +387,18 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
             }
         }
         
+        impl<S: num_traits::Num + Copy> core::ops::Mul<#vec_col<S>> for #name<S>
+        {
+            type Output = #vec_row<S>;
+            
+            #[inline]
+            fn mul(self, rhs: #vec_col<S>) -> Self::Output
+            {
+                return Self::Output::new(
+                    #(rhs.dot(self.#rows())),*
+                );
+            }
+        }
+        
     };
 }

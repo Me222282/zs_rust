@@ -270,4 +270,16 @@ mod matrix_tests
         let mat_mult = mat_a - mat_b;
         assert_eq!(mat_r, mat_mult);
     }
+    
+    #[test]
+    fn multiply_vec()
+    {
+        let r = Vector7::<i32>::new(343, 742, 140, 142, 448, 403, 150);
+        
+        let mat = Matrix7::from(A);
+        let vec = Vector7::<i32>::new(1, 2, 3, 4, 5, 6, 7);
+        
+        let mult = mat * vec;
+        assert_eq!(r, mult);
+    }
 }
