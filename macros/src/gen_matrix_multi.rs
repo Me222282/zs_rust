@@ -1,5 +1,5 @@
 use proc_macro2::{Span, TokenStream};
-use syn::{parse::Parser, punctuated::Punctuated, AttrStyle, Attribute, DeriveInput, Ident, Token};
+use syn::{parse::Parser, punctuated::Punctuated, DeriveInput, Ident, Token};
 use quote::quote;
 use crate::*;
 
@@ -7,7 +7,7 @@ pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
 {
     let name = &input.ident;
     
-    let args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_args"));
+    let args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_mat_args"));
     let impls = args.iter().map(|a| multi_impl(attri_args(a).unwrap(), name));
     
     return quote! {
@@ -23,7 +23,7 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
     
     if args_parsed.len() != 4
     {
-        panic!("Attribute must have 5 arguments.")
+        panic!("Attribute must have 4 arguments.")
     }
     
     let row_li = args_parsed[0].expect_lit_int();
@@ -37,8 +37,7 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
     
     let code: Vec<_> = MatMulti::new(row, col).collect();
     
-    let assign = 
-    if out.path.segments.last().unwrap().ident.eq(name)
+    let assign = if out.path.segments.last().unwrap().ident.eq(name)
     {
         quote! {
             impl<S: num_traits::Num + Copy>
@@ -73,78 +72,6 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
         }
         #assign
     };
-}
-
-fn is_attri(attri: &Attribute, str: &str) -> bool
-{
-    match attri.style
-    {
-        AttrStyle::Inner(_) => false,
-        AttrStyle::Outer =>
-        {
-            match &attri.meta
-            {
-                syn::Meta::List(m) =>
-                {
-                    let i = m.path.get_ident();
-                    match i
-                    {
-                        None => false,
-                        Some(i) =>
-                        {
-                            *i == Ident::new(str, i.span())
-                        }
-                    }
-                },
-                _ => false
-            }
-        }
-    }
-}
-fn attri_args(attri: &Attribute) -> Option<TokenStream>
-{
-    match attri.style
-    {
-        AttrStyle::Inner(_) => None,
-        AttrStyle::Outer =>
-        {
-            match &attri.meta
-            {
-                syn::Meta::List(m) => Some(m.tokens.clone()),
-                _ => None
-            }
-        }
-    }
-}
-
-fn find_remove<T, P>(vec: &mut Vec<T>, predicate: P) -> Vec<T>
-    where P: Fn(&T) -> bool
-{
-    let mut map = vec![false; vec.len()];
-    let mut filter = Vec::<T>::with_capacity(vec.len());
-    
-    let mut i = 0;
-    for t in vec.iter()
-    {
-        if predicate(t)
-        {
-            map[i] = true;
-        }
-        
-        i += 1;
-    }
-    
-    // Backwards allows it to work
-    for i in (0..vec.len()).rev()
-    {
-        if map[i]
-        {
-            let t = vec.swap_remove(i);
-            filter.push(t);
-        }
-    }
-    
-    return filter;
 }
 
 struct MatMulti

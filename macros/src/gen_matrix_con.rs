@@ -53,14 +53,7 @@ pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) 
         2 => ident_vec!["scale_x", "scale_y"],
         _ => panic!("Size must be 2 or greater.")
     };
-    let vec_args = match min
-    {
-        s if s > 4 => Dimension::new(s, "i").collect(),
-        4 => ident_vec!["x", "y", "z", "w"],
-        3 => ident_vec!["x", "y", "z"],
-        2 => ident_vec!["x", "y"],
-        _ => panic!("Size must be 2 or greater.")
-    };
+    let vec_args = vector_args(min);
     
     let mut sn_tokens = Vec::<TokenStream>::with_capacity(scale_names.len());
     for s in &scale_names

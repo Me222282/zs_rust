@@ -1,7 +1,7 @@
 use std::str::FromStr; 
 
-use proc_macro2::{Ident, Span};
-use syn::{Expr, LitInt};
+use proc_macro2::{Ident, Span, TokenStream};
+use syn::{AttrStyle, Attribute, Expr, LitInt};
 
 macro_rules! ident_vec {
     ($($x:expr),*) => {
@@ -147,4 +147,87 @@ pub(crate) fn expect_lit_int(expr: &Expr) -> &LitInt
         },
         _ => panic!("Expected an integer argument")
     }
+}
+
+pub(crate) fn vector_args(size: usize) -> Vec<Ident>
+{
+    return match size
+    {
+        s if s > 4 => Dimension::new(s, "i").collect(),
+        4 => ident_vec!["x", "y", "z", "w"],
+        3 => ident_vec!["x", "y", "z"],
+        2 => ident_vec!["x", "y"],
+        _ => panic!("Size must be 2 or greater.")
+    };
+}
+
+pub(crate) fn is_attri(attri: &Attribute, str: &str) -> bool
+{
+    match attri.style
+    {
+        AttrStyle::Inner(_) => false,
+        AttrStyle::Outer =>
+        {
+            match &attri.meta
+            {
+                syn::Meta::List(m) =>
+                {
+                    let i = m.path.get_ident();
+                    match i
+                    {
+                        None => false,
+                        Some(i) =>
+                        {
+                            *i == Ident::new(str, i.span())
+                        }
+                    }
+                },
+                _ => false
+            }
+        }
+    }
+}
+pub(crate) fn attri_args(attri: &Attribute) -> Option<TokenStream>
+{
+    match attri.style
+    {
+        AttrStyle::Inner(_) => None,
+        AttrStyle::Outer =>
+        {
+            match &attri.meta
+            {
+                syn::Meta::List(m) => Some(m.tokens.clone()),
+                _ => None
+            }
+        }
+    }
+}
+pub(crate) fn find_remove<T, P>(vec: &mut Vec<T>, predicate: P) -> Vec<T>
+    where P: Fn(&T) -> bool
+{
+    let mut map = vec![false; vec.len()];
+    let mut filter = Vec::<T>::with_capacity(vec.len());
+    
+    let mut i = 0;
+    for t in vec.iter()
+    {
+        if predicate(t)
+        {
+            map[i] = true;
+        }
+        
+        i += 1;
+    }
+    
+    // Backwards allows it to work
+    for i in (0..vec.len()).rev()
+    {
+        if map[i]
+        {
+            let t = vec.swap_remove(i);
+            filter.push(t);
+        }
+    }
+    
+    return filter;
 }
