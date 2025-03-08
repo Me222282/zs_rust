@@ -1,7 +1,6 @@
-use proc_macro2::TokenStream;
+use proc_macro2::{Span, TokenStream};
 use syn::{parse::Parser, punctuated::Punctuated, AttrStyle, Attribute, DeriveInput, Expr, Ident, LitInt, Path, Token};
 use quote::quote;
-use crate::backend::*;
 
 pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
 {
@@ -11,7 +10,6 @@ pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
     let impls = args.iter().map(|a| multi_impl(attri_args(a).unwrap(), name));
     
     return quote! {
-        #input
         #(#impls)*
     };
 }
@@ -22,34 +20,35 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
         .parse2(args)
         .unwrap();
     
-    if args_parsed.len() != 5
+    if args_parsed.len() != 4
     {
         panic!("Attribute must have 5 arguments.")
     }
     
     let row_li = expect_lit_int(&args_parsed[0]);
-    let com_li = expect_lit_int(&args_parsed[1]);
-    let col_li = expect_lit_int(&args_parsed[2]);
-    let rhs_li = expect_path(&args_parsed[3]);
-    let out_li = expect_path(&args_parsed[4]);
+    // let com_li = expect_lit_int(&args_parsed[1]);
+    let col_li = expect_lit_int(&args_parsed[1]);
+    let rhs = expect_path(&args_parsed[2]);
+    let out = expect_path(&args_parsed[3]);
     
     let row = row_li.base10_parse::<usize>().unwrap();
-    let com = com_li.base10_parse::<usize>().unwrap();
+    // let com = com_li.base10_parse::<usize>().unwrap();
     let col = col_li.base10_parse::<usize>().unwrap();
     
-    let rhs = &rhs_li.segments.last().unwrap().ident;
-    let out = &out_li.segments.last().unwrap().ident;
+    let code: Vec<_> = MatMulti::new(row, col).collect();
     
     return quote! {
-        impl<S: core::ops::Mul<Output = S> + core::ops::Add<Output = S> + Copy>
-            core::ops::Mul<#rhs<S>> for #name<S>
+        impl<S: num_traits::Num + Copy>
+            core::ops::Mul<#rhs> for #name<S>
         {
-            type Output = #out<S>;
+            type Output = #out;
             
             #[inline]
-            fn mul(self, rhs: #rhs<S>) -> Self::Output
+            fn mul(self, rhs: #rhs) -> Self::Output
             {
-                // implement
+                return [
+                    #([#(#code),*]),*
+                ].into();
             }
         }
     };
@@ -149,5 +148,50 @@ fn expect_path(expr: &Expr) -> &Path
     {
         Expr::Path(p) => &p.path,
         _ => panic!("Expected a type argument")
+    }
+}
+
+struct MatMulti
+{
+    rows: usize,
+    cols: usize,
+    i: usize
+}
+impl MatMulti
+{
+    pub fn new(rows: usize, cols: usize) -> Self
+    {
+        return Self {
+            rows,
+            cols,
+            i: 0
+        };
+    }
+}
+impl Iterator for MatMulti
+{
+    type Item = Vec<TokenStream>;
+
+    fn next(&mut self) -> Option<Self::Item>
+    {
+        let ci = self.i;
+        self.i += 1;
+        if ci < self.rows
+        {
+            let mut v = Vec::<TokenStream>::with_capacity(self.cols);
+            for x in 0..self.cols
+            {
+                let row = Ident::new(format!("row{ci}").as_str(), Span::call_site());
+                let col = Ident::new(format!("col{x}").as_str(), Span::call_site());
+                
+                v.push(quote! {
+                    self.#row().dot(rhs.#col())
+                });
+            }
+            
+            return Some(v);
+        }
+        
+        return None;
     }
 }

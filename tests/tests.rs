@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use zs_macros::{generate_matrix_square, generate_vector};
+    use zs_macros::*;
     use num_traits::Zero;
     // use zs_core;
     
@@ -8,6 +8,8 @@ mod tests {
     struct Vector7 {}
     
     #[generate_matrix_square(7)]
+    #[derive(Mul)]
+    #[mult_args(7, 7, Matrix7::<S>, Matrix7::<S>)]
     struct Matrix7 {}
 
     #[test]
@@ -214,5 +216,44 @@ mod tests {
                 assert_eq!(value, mat[[x, y]]);
             }
         }
+    }
+    
+    #[test]
+    fn matrix_multiply()
+    {
+        let a = [
+            [6, 9, 13, 4, 50, 0, 2],
+            [4, 9, 16, 32, 105, 2, 1],
+            [1, 2, 3, 4, 5, 6, 7],
+            [0, 0, 7, 9, 8, 4, 3],
+            [12, 13, 14, 15, 16, 17, 18],
+            [11, 10, 3, 4, 56, 3, 7],
+            [0, 1, 3, 4, 5, 7, 8]
+        ];
+        let b = [
+            [1, 2, 3, 4, 5, 6, 7],
+            [8, 9, 10, 11, 12, 13, 14],
+            [15, 16, 17, 18, 19, 20, 21],
+            [22, 23, 24, 25, 26, 27, 28],
+            [29, 30, 31, 32, 33, 34, 35],
+            [36, 37, 38, 39, 40, 41, 42],
+            [43, 44, 45, 46, 47, 48, 49]
+        ];
+        let r = [
+            [1897, 1981, 2065, 2149, 2233, 2317, 2401],
+            [4180, 4349, 4518, 4687, 4856, 5025, 5194],
+            [812, 840, 868, 896, 924, 952, 980],
+            [808, 839, 870, 901, 932, 963, 994],
+            [2506, 2611, 2716, 2821, 2926, 3031, 3136],
+            [2257, 2351, 2445, 2539, 2633, 2727, 2821],
+            [882, 910, 938, 966, 994, 1022, 1050]
+        ];
+        
+        let mat_a = Matrix7::from(a);
+        let mat_b = Matrix7::from(b);
+        let mat_r = Matrix7::from(r);
+        
+        let mat_mult = mat_a * mat_b;
+        assert_eq!(mat_r, mat_mult);
     }
 }
