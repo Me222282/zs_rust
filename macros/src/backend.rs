@@ -1,7 +1,7 @@
 use std::str::FromStr; 
 
 use proc_macro2::{Ident, Span, TokenStream};
-use syn::{AttrStyle, Attribute, Expr, LitInt};
+use syn::{punctuated::Punctuated, AttrStyle, Attribute, Expr, LitInt};
 
 macro_rules! ident_vec {
     ($($x:expr),*) => {
@@ -180,29 +180,34 @@ pub(crate) fn vector_args_str(size: usize, pre: &str) -> Vec<Ident>
 
 pub(crate) fn is_attri(attri: &Attribute, str: &str) -> bool
 {
-    match attri.style
+    let path = match attri.style
     {
-        AttrStyle::Inner(_) => false,
+        AttrStyle::Inner(_) => None,
         AttrStyle::Outer =>
         {
             match &attri.meta
             {
-                syn::Meta::List(m) =>
-                {
-                    let i = m.path.get_ident();
-                    match i
-                    {
-                        None => false,
-                        Some(i) =>
-                        {
-                            *i == Ident::new(str, i.span())
-                        }
-                    }
-                },
-                _ => false
+                syn::Meta::List(m) => Some(&m.path),
+                syn::Meta::Path(p) => Some(p),
+                _ => None
             }
         }
+    };
+    
+    if path.is_none()
+    {
+        return false;
     }
+    
+    let i = path.unwrap().get_ident();
+    return match i
+    {
+        None => false,
+        Some(i) =>
+        {
+            *i == Ident::new(str, i.span())
+        }
+    };
 }
 pub(crate) fn attri_args(attri: &Attribute) -> Option<TokenStream>
 {
@@ -214,6 +219,7 @@ pub(crate) fn attri_args(attri: &Attribute) -> Option<TokenStream>
             match &attri.meta
             {
                 syn::Meta::List(m) => Some(m.tokens.clone()),
+                syn::Meta::Path(_) => Some(TokenStream::new()),
                 _ => None
             }
         }
@@ -247,4 +253,21 @@ pub(crate) fn find_remove<T, P>(vec: &mut Vec<T>, predicate: P) -> Vec<T>
     }
     
     return filter;
+}
+
+pub(crate) fn ident_type_path(ident: Ident) -> syn::TypePath
+{
+    let mut punc = Punctuated::<syn::PathSegment, syn::Token![::]>::new();
+    punc.push(syn::PathSegment {
+        ident: ident,
+        arguments: syn::PathArguments::None
+    });
+    
+    return syn::TypePath {
+        qself: None,
+        path: syn::Path {
+            leading_colon: None,
+            segments: punc
+        }
+    };
 }

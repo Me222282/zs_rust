@@ -16,7 +16,7 @@ pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) 
     let ty = match ty
     {
         syn::Fields::Named(n) => n,
-        _ => panic!("fields sure be named")
+        _ => panic!("fields must be named")
     };
     let ty = &ty.named.first().unwrap().ty;
     let row_li: &LitInt;

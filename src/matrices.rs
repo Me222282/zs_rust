@@ -6,16 +6,16 @@ use crate::{Vector2, Vector3, Vector4};
 
 #[generate_matrix_square(2, Vector2)]
 #[derive(MatMult)]
-#[mult_mat_args(2, 2, Matrix2, Matrix2)]
+#[mult_mat_args()]
 // #[mult_args(2, 3, Matrix2x3, Matrix2x3)]
 pub struct Matrix2 {}
 #[generate_matrix_square(3, Vector3)]
 #[derive(MatMult)]
-#[mult_mat_args(3, 3, Matrix3, Matrix3)]
+#[mult_mat_args()]
 pub struct Matrix3 {}
 #[generate_matrix_square(4, Vector4)]
 #[derive(MatMult)]
-#[mult_mat_args(4, 4, Matrix4, Matrix4)]
+#[mult_mat_args()]
 pub struct Matrix4 {}
 
 // #[generate_matrix(2, 3, Vector2, Vector3)]

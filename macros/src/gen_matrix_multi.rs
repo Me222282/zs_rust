@@ -7,33 +7,68 @@ pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
 {
     let name = &input.ident;
     
+    let ty = &input.data;
+    let ty = match ty
+    {
+        syn::Data::Struct(s) => &s.fields,
+        _ => panic!("invalid item")
+    };
+    let ty = match ty
+    {
+        syn::Fields::Named(n) => n,
+        _ => panic!("fields must be named")
+    };
+    let ty = &ty.named.first().unwrap().ty;
+    let row_li = match ty
+    {
+        syn::Type::Array(a) => expect_lit_int(&a.len),
+        _ => panic!("invalid matrix fields")
+    };
+    let row = row_li.base10_parse::<usize>().unwrap();
+    
     let args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_mat_args"));
-    let impls = args.iter().map(|a| multi_impl(attri_args(a).unwrap(), name));
+    let impls = args.iter().map(|a| multi_impl(attri_args(a).unwrap(), name, row));
     
     return quote! {
         #(#impls)*
     };
 }
 
-fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
+fn multi_impl(args: TokenStream, name: &Ident, row: usize) -> TokenStream
 {
     let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
         .parse2(args)
         .unwrap();
     
-    if args_parsed.len() != 4
+    let rhs: &syn::TypePath;
+    let out: syn::TypePath;
+    
+    let col: usize;
+    
+    match args_parsed.len()
     {
-        panic!("Attribute must have 4 arguments.")
+        3 => {
+            let col_li = args_parsed[0].expect_lit_int();
+            rhs = args_parsed[1].expect_type();
+            out = args_parsed[2].expect_type().clone();
+            
+            col = col_li.base10_parse::<usize>().unwrap();
+        },
+        2 => {
+            let col_li = args_parsed[0].expect_lit_int();
+            rhs = args_parsed[1].expect_type();
+            out = ident_type_path(name.clone());
+            
+            col = col_li.base10_parse::<usize>().unwrap();
+        },
+        0 => {
+            out = ident_type_path(name.clone());
+            rhs = &out;
+            
+            col = row;
+        },
+        _ => panic!("Attribute must have either 0, 2 or 3 arguments.")
     }
-    
-    let row_li = args_parsed[0].expect_lit_int();
-    let col_li = args_parsed[1].expect_lit_int();
-    let rhs = args_parsed[2].expect_type();
-    let out = args_parsed[3].expect_type();
-    
-    let row = row_li.base10_parse::<usize>().unwrap();
-    // let com = com_li.base10_parse::<usize>().unwrap();
-    let col = col_li.base10_parse::<usize>().unwrap();
     
     let code: Vec<_> = MatMulti::new(row, col).collect();
     

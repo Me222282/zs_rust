@@ -7,6 +7,6 @@ pub struct Vector7 {}
 
 #[generate_matrix_square(7, Vector7)]
 #[derive(MatMult)]
-#[mult_mat_args(7, 7, Matrix7, Matrix7)]
+#[mult_mat_args]
 #[generate_matrix_constructors(Vector7)]
 pub struct Matrix7 {}

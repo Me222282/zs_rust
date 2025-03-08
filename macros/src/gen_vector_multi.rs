@@ -43,26 +43,14 @@ fn multi_impl(args: TokenStream, name: &Ident, size: usize) -> TokenStream
     }
     else if args_parsed.len() == 1
     {
-        let mut punc = Punctuated::<syn::PathSegment, Token![::]>::new();
-        punc.push(syn::PathSegment {
-            ident: name.clone(),
-            arguments: syn::PathArguments::None
-        });
-        
         rhs = args_parsed[0].expect_type();
-        out = TypePath {
-            qself: None,
-            path: syn::Path {
-                leading_colon: None,
-                segments: punc
-            }
-        };
+        out = ident_type_path(name.clone());
         
         col = size;
     }
     else
     {
-        panic!("Attribute must have 3 arguments.")
+        panic!("Attribute must have either a type argument or a size and 2 types.")
     }
     
     let cols: Vec<_> = Dimension::new(col, "col").collect();
