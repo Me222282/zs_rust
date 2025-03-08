@@ -1,5 +1,5 @@
 use zs_core::Float;
-use zs_macros::{generate_matrix, generate_matrix_square, MatMult};
+use zs_macros::{generate_matrix_square, MatMult};
 
 use crate::real;
 use crate::{Vector2, Vector3, Vector4};
