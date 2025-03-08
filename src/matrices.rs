@@ -38,4 +38,3 @@ impl<S: Float> Matrix2<S>
         return [[cos, sin], [-sin, cos]].into();
     }
 }
-

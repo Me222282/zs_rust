@@ -37,6 +37,26 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
     
     let code: Vec<_> = MatMulti::new(row, col).collect();
     
+    let assign = 
+    if out.path.segments.last().unwrap().ident.eq(name)
+    {
+        quote! {
+            impl<S: num_traits::Num + Copy>
+            core::ops::MulAssign<#rhs<S>> for #name<S>
+            {
+                #[inline]
+                fn mul_assign(&mut self, rhs: #rhs<S>)
+                {
+                    self.data = [#([#(#code),*]),*];
+                }
+            }
+        }
+    }
+    else
+    {
+        TokenStream::new()
+    };
+    
     return quote! {
         impl<S: num_traits::Num + Copy>
             core::ops::Mul<#rhs<S>> for #name<S>
@@ -51,6 +71,7 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
                 ].into();
             }
         }
+        #assign
     };
 }
 
