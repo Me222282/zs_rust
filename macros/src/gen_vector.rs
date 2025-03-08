@@ -17,14 +17,7 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
     let args = vector_args(size);
     let nums: Vec<_> = Numbers::new(size).collect();
     
-    let unit_names = match size
-    {
-        s if s > 4 => Dimension::new(s, "unit_i").collect(),
-        4 => ident_vec!["unit_x", "unit_y", "unit_z", "unit_w"],
-        3 => ident_vec!["unit_x", "unit_y", "unit_z"],
-        2 => ident_vec!["unit_x", "unit_y"],
-        _ => panic!("Size must be 2 or greater.")
-    };
+    let unit_names = vector_args_str(size, "unit_");
     let uni_one = Ident::new("one", Span::call_site());
     let uni_zero = Ident::new("zero", Span::call_site());
     let units: Vec<_> = MatIdent::<Ident>::new(size, size, &uni_zero, &uni_one).collect();

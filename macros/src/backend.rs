@@ -160,6 +160,23 @@ pub(crate) fn vector_args(size: usize) -> Vec<Ident>
         _ => panic!("Size must be 2 or greater.")
     };
 }
+pub(crate) fn vector_args_str(size: usize, pre: &str) -> Vec<Ident>
+{
+    return match size
+    {
+        s if s > 4 => Dimension::new(s, format!("{pre}i").as_str()).collect(),
+        
+        4 => ident_vec![format!("{pre}x").as_str(), format!("{pre}y").as_str(),
+            format!("{pre}z").as_str(), format!("{pre}w").as_str()],
+            
+        3 => ident_vec![format!("{pre}x").as_str(), format!("{pre}y").as_str(),
+            format!("{pre}z").as_str()],
+            
+        2 => ident_vec![format!("{pre}x").as_str(), format!("{pre}y").as_str()],
+        
+        _ => panic!("Size must be 2 or greater.")
+    };
+}
 
 pub(crate) fn is_attri(attri: &Attribute, str: &str) -> bool
 {
