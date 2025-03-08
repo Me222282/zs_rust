@@ -1,7 +1,7 @@
 use proc_macro2::{Span, TokenStream};
 use syn::{parse::Parser, punctuated::Punctuated, AttrStyle, Attribute, DeriveInput, Ident, Token};
 use quote::quote;
-use crate::backend::*;
+use crate::*;
 
 pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
 {

@@ -1,7 +1,7 @@
 use proc_macro2::{Ident, Span, TokenStream};
 use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token};
 use quote::quote;
-use crate::backend::*;
+use crate::*;
 
 pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> TokenStream
 {

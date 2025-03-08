@@ -2,7 +2,7 @@ use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use syn::{ItemStruct, LitInt};
 use quote::quote;
-use crate::backend::*;
+use crate::*;
 
 pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::TokenStream
 {

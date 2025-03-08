@@ -3,7 +3,7 @@ use std::str::FromStr;
 
 use proc_macro2::{Ident, Span};
 use quote::ToTokens;
-use syn::LitInt;
+use syn::{Expr, LitInt};
 
 macro_rules! ident_vec {
     ($($x:expr),*) => {
@@ -294,5 +294,21 @@ impl syn::parse::Parse for Arg
                 }
             }
         }
+    }
+}
+
+pub(crate) fn expect_lit_int(expr: &Expr) -> &LitInt
+{
+    match expr
+    {
+        Expr::Lit(l) =>
+        {
+            match &l.lit
+            {
+                syn::Lit::Int(i) => &i,
+                _ => panic!("Expected an integer argument")
+            }
+        },
+        _ => panic!("Expected an integer argument")
     }
 }
