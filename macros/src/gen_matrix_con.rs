@@ -1,6 +1,8 @@
+use std::cmp;
+
 use proc_macro2::TokenStream;
 use syn::{ItemStruct, LitInt, TypePath};
-use quote::quote;
+use quote::{quote, ToTokens};
 use crate::*;
 
 pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) -> TokenStream
@@ -39,7 +41,35 @@ pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) 
     
     let unit_one = quote! { scale };
     let unit_zero = quote! { S::zero() };
-    let scale: Vec<_> = MatIdent::<TokenStream>::new(row, col, &unit_zero, &unit_one).collect();
+    let scale: Vec<_> = MatIdent::<_>::new(row, col, &unit_zero, &unit_one).collect();
+    
+    let min = cmp::min(row, col);
+    
+    let scale_names = match min
+    {
+        s if s > 4 => Dimension::new(s, "scale_i").collect(),
+        4 => ident_vec!["scale_x", "scale_y", "scale_z", "scale_w"],
+        3 => ident_vec!["scale_x", "scale_y", "scale_z"],
+        2 => ident_vec!["scale_x", "scale_y"],
+        _ => panic!("Size must be 2 or greater.")
+    };
+    let vec_args = match min
+    {
+        s if s > 4 => Dimension::new(s, "i").collect(),
+        4 => ident_vec!["x", "y", "z", "w"],
+        3 => ident_vec!["x", "y", "z"],
+        2 => ident_vec!["x", "y"],
+        _ => panic!("Size must be 2 or greater.")
+    };
+    
+    let mut sn_tokens = Vec::<TokenStream>::with_capacity(scale_names.len());
+    for s in &scale_names
+    {
+        sn_tokens.push(s.to_token_stream());
+    }
+    let scale_v: Vec<_> = MatScale::<_, _>::new(row, col, &unit_zero, sn_tokens.iter()).collect();
+    
+    let scale_name_fn = ident_str![format!("create_scale_{min}").as_str()];
     
     return quote! {
         #input
@@ -53,18 +83,18 @@ pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) 
                     data: [#([#(#scale),*]),*]
                 };
             }
-            // #[inline]
-            // pub fn create_scale_2(scale_x: S, scale_y: S) -> Self
-            // {
-            //     return Self {
-            //         data: [[scale_x, S::zero()], [S::zero(), scale_y]]
-            //     };
-            // }
-            // #[inline]
-            // pub fn create_scale_v(scale: Vector2<S>) -> Self
-            // {
-            //     return Self::create_scale_2(scale.x, scale.y);
-            // }
+            #[inline]
+            pub fn #scale_name_fn(#(#scale_names: S),*) -> Self
+            {
+                return Self {
+                    data: [#([#(#scale_v),*]),*]
+                };
+            }
+            #[inline]
+            pub fn create_scale_v(scale: #vec<S>) -> Self
+            {
+                return Self::#scale_name_fn(#(scale.#vec_args),*);
+            }
         }
     };
 }
