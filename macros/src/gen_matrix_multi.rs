@@ -1,6 +1,7 @@
 use proc_macro2::{Span, TokenStream};
-use syn::{parse::Parser, punctuated::Punctuated, AttrStyle, Attribute, DeriveInput, Expr, Ident, LitInt, Path, Token};
+use syn::{parse::Parser, punctuated::Punctuated, AttrStyle, Attribute, DeriveInput, Ident, Token};
 use quote::quote;
+use crate::backend::*;
 
 pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
 {
@@ -16,7 +17,7 @@ pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
 
 fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
 {
-    let args_parsed = Punctuated::<Expr, Token![,]>::parse_terminated
+    let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
         .parse2(args)
         .unwrap();
     
@@ -25,11 +26,11 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
         panic!("Attribute must have 5 arguments.")
     }
     
-    let row_li = expect_lit_int(&args_parsed[0]);
+    let row_li = &args_parsed[0].expect_lit_int();
     // let com_li = expect_lit_int(&args_parsed[1]);
-    let col_li = expect_lit_int(&args_parsed[1]);
-    let rhs = expect_path(&args_parsed[2]);
-    let out = expect_path(&args_parsed[3]);
+    let col_li = &args_parsed[1].expect_lit_int();
+    let rhs = &args_parsed[2].expect_type();
+    let out = &args_parsed[3].expect_type();
     
     let row = row_li.base10_parse::<usize>().unwrap();
     // let com = com_li.base10_parse::<usize>().unwrap();
@@ -39,12 +40,12 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
     
     return quote! {
         impl<S: num_traits::Num + Copy>
-            core::ops::Mul<#rhs> for #name<S>
+            core::ops::Mul<#rhs<S>> for #name<S>
         {
-            type Output = #out;
+            type Output = #out<S>;
             
             #[inline]
-            fn mul(self, rhs: #rhs) -> Self::Output
+            fn mul(self, rhs: #rhs<S>) -> Self::Output
             {
                 return [
                     #([#(#code),*]),*
@@ -124,31 +125,6 @@ fn find_remove<T, P>(vec: &mut Vec<T>, predicate: P) -> Vec<T>
     }
     
     return filter;
-}
-
-fn expect_lit_int(expr: &Expr) -> &LitInt
-{
-    match expr
-    {
-        Expr::Lit(l) =>
-        {
-            match &l.lit
-            {
-                syn::Lit::Int(i) => &i,
-                _ => panic!("Expected an integer argument")
-            }
-        },
-        _ => panic!("Expected an integer argument")
-    }
-}
-
-fn expect_path(expr: &Expr) -> &Path
-{
-    match expr
-    {
-        Expr::Path(p) => &p.path,
-        _ => panic!("Expected a type argument")
-    }
 }
 
 struct MatMulti

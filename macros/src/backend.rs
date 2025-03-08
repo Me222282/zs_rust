@@ -250,3 +250,49 @@ impl Iterator for Grid
         return None;
     }
 }
+
+pub(crate) enum Arg
+{
+    Lit(LitInt),
+    Type(syn::TypePath)
+}
+impl Arg
+{
+    pub fn expect_lit_int(&self) -> &LitInt
+    {
+        match self
+        {
+            Arg::Lit(l) => &l,
+            _ => panic!("Expected an integer argument")
+        }
+    }
+
+    pub fn expect_type(&self) -> &syn::TypePath
+    {
+        match self
+        {
+            Arg::Type(t) => &t,
+            _ => panic!("Expected a type argument")
+        }
+    }
+}
+impl syn::parse::Parse for Arg
+{
+    fn parse(input: syn::parse::ParseStream) -> syn::Result<Self>
+    {
+        let r = LitInt::parse(input);
+        match r
+        {
+            Ok(d) => Ok(Arg::Lit(d)),
+            Err(_) =>
+            {
+                let r = syn::TypePath::parse(input);
+                match r
+                {
+                    Ok(d) => Ok(Arg::Type(d)),
+                    Err(e) => Err(e)
+                }
+            }
+        }
+    }
+}

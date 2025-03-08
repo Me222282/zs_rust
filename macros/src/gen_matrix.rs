@@ -1,22 +1,24 @@
-use proc_macro::TokenStream;
-use proc_macro2::{Ident, Span};
+use proc_macro2::{Ident, Span, TokenStream};
 use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token};
 use quote::quote;
 use crate::backend::*;
 
-pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::TokenStream
+pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> TokenStream
 {
-    let args_parsed = Punctuated::<LitInt, Token![,]>::parse_terminated
-        .parse2(attr.into())
+    let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
+        .parse(attr)
         .unwrap();
     
-    if args_parsed.len() != 2
+    if args_parsed.len() != 4
     {
-        panic!("Attribute must have a rows and columns argument.")
+        panic!("Attribute must have a rows, columns and vectors argument.")
     }
     
-    let row_li = &args_parsed[0];
-    let col_li = &args_parsed[1];
+    let row_li = &args_parsed[0].expect_lit_int();
+    let col_li = &args_parsed[1].expect_lit_int();
+    let vec_row = &args_parsed[2].expect_type();
+    let vec_col = &args_parsed[3].expect_type();
+    
     let row = row_li.base10_parse::<usize>().unwrap();
     let col = col_li.base10_parse::<usize>().unwrap();
     
@@ -35,8 +37,8 @@ pub(crate) fn gen_matrix(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
     
     let row_grid: Vec<_> = Grid::new(row, col).collect();
     
-    let vec_row = Ident::new(format!("Vector{row}").as_str(), Span::call_site());
-    let vec_col = Ident::new(format!("Vector{col}").as_str(), Span::call_site());
+    // let vec_row = Ident::new(format!("Vector{row}").as_str(), Span::call_site());
+    // let vec_col = Ident::new(format!("Vector{col}").as_str(), Span::call_site());
     
     let size = LitInt::new((row * col).to_string().as_str(), Span::call_site());
     
