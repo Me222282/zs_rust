@@ -26,11 +26,10 @@ fn multi_impl(args: TokenStream, name: &Ident) -> TokenStream
         panic!("Attribute must have 5 arguments.")
     }
     
-    let row_li = &args_parsed[0].expect_lit_int();
-    // let com_li = expect_lit_int(&args_parsed[1]);
-    let col_li = &args_parsed[1].expect_lit_int();
-    let rhs = &args_parsed[2].expect_type();
-    let out = &args_parsed[3].expect_type();
+    let row_li = args_parsed[0].expect_lit_int();
+    let col_li = args_parsed[1].expect_lit_int();
+    let rhs = args_parsed[2].expect_type();
+    let out = args_parsed[3].expect_type();
     
     let row = row_li.base10_parse::<usize>().unwrap();
     // let com = com_li.base10_parse::<usize>().unwrap();

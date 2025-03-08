@@ -14,10 +14,10 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
         panic!("Attribute must have a rows, columns and vectors argument.")
     }
     
-    let row_li = &args_parsed[0].expect_lit_int();
-    let col_li = &args_parsed[1].expect_lit_int();
-    let vec_row = &args_parsed[2].expect_type();
-    let vec_col = &args_parsed[3].expect_type();
+    let row_li = args_parsed[0].expect_lit_int();
+    let col_li = args_parsed[1].expect_lit_int();
+    let vec_col = args_parsed[2].expect_type();
+    let vec_row = args_parsed[3].expect_type();
     
     let row = row_li.base10_parse::<usize>().unwrap();
     let col = col_li.base10_parse::<usize>().unwrap();
@@ -25,15 +25,16 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
     let rows: Vec<_> = Dimension::new(row, "row").collect();
     let cols: Vec<_> = Dimension::new(col, "col").collect();
     
+    let x_nums: Vec<_> = Numbers::new(col).collect();
     let y_nums: Vec<_> = Numbers::new(row).collect();
     
-    let range_start: Vec<_> = MatIndex::new(col, row, 0).collect();
+    let range_start: Vec<_> = MatIndex::new(row, col, 0).collect();
     let range_end: Vec<_> = MatIndex::new(row, col, col).collect();
     
     let unit_one = Ident::new("one", Span::call_site());
     let unit_zero = Ident::new("zero", Span::call_site());
     let identity: Vec<_> = MatIdent::<Ident>::new(row, col, &unit_zero, &unit_one).collect();
-    let col_grid: Vec<_> = GridInv::new(row, col).collect();
+    let col_grid: Vec<_> = GridInv::new(col, row).collect();
     
     let row_grid: Vec<_> = Grid::new(row, col).collect();
     
@@ -52,13 +53,13 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
         #[derive(Clone, Copy, Debug, PartialEq)]
         #vis struct #name<S>
         {
-            data: [[S; #row_li]; #col_li]
+            data: [[S; #col_li]; #row_li]
         }
         
         impl<S: Copy> #name<S>
         {
             #[inline]
-            pub fn new(#(#rows: #vec_col<S>),*) -> Self
+            pub fn new(#(#rows: #vec_row<S>),*) -> Self
             {
                 return Self {
                     data: [
@@ -68,16 +69,16 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
             }
             #(
             #[inline]
-            pub fn #rows(&self) -> #vec_col<S>
+            pub fn #rows(&self) -> #vec_row<S>
             {
-                return #vec_col::<S>::from(self.data[#y_nums]);
+                return #vec_row::<S>::from(self.data[#x_nums]);
             })*
             
             #(
             #[inline]
-            pub fn #cols(&self) -> #vec_row<S>
+            pub fn #cols(&self) -> #vec_col<S>
             {
-                return #vec_row::<S>::new(
+                return #vec_col::<S>::new(
                     #(self[#col_grid]),*
                 );
             })*
@@ -92,20 +93,20 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
                 };
             }
         }
-        impl<S: Copy> std::convert::From<&[[S; #row_li]; #col_li]> for #name<S>
+        impl<S: Copy> std::convert::From<&[[S; #col_li]; #row_li]> for #name<S>
         {
             #[inline]
-            fn from(value: &[[S; #row_li]; #col_li]) -> Self
+            fn from(value: &[[S; #col_li]; #row_li]) -> Self
             {
                 return Self {
                     data: *value
                 };
             }
         }
-        impl<S: Copy> std::convert::From<&[&[S; #row_li]; #col_li]> for #name<S>
+        impl<S: Copy> std::convert::From<&[&[S; #col_li]; #row_li]> for #name<S>
         {
             #[inline]
-            fn from(value: &[&[S; #row_li]; #col_li]) -> Self
+            fn from(value: &[&[S; #col_li]; #row_li]) -> Self
             {
                 return Self {
                     data: [
@@ -114,10 +115,10 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
                 };
             }
         }
-        impl<S: Copy> std::convert::From<[[S; #row_li]; #col_li]> for #name<S>
+        impl<S: Copy> std::convert::From<[[S; #col_li]; #row_li]> for #name<S>
         {
             #[inline]
-            fn from(value: [[S; #row_li]; #col_li]) -> Self
+            fn from(value: [[S; #col_li]; #row_li]) -> Self
             {
                 return Self {
                     data: value
@@ -376,7 +377,7 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
             fn zero() -> Self
             {
                 return Self {
-                    data: [[S::zero(); #row_li]; #col_li]
+                    data: [[S::zero(); #col_li]; #row_li]
                 };
             }
             #[inline]

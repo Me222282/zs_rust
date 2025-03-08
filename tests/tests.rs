@@ -117,13 +117,13 @@ mod tests {
         }
         let mat = Matrix7::from(&array);
         
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[0]), mat.row0());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[1]), mat.row1());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[2]), mat.row2());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[3]), mat.row3());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[4]), mat.row4());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[5]), mat.row5());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(array[6]), mat.row6());
+        assert_eq!(Vector7::<usize>::from(array[0]), mat.row0());
+        assert_eq!(Vector7::<usize>::from(array[1]), mat.row1());
+        assert_eq!(Vector7::<usize>::from(array[2]), mat.row2());
+        assert_eq!(Vector7::<usize>::from(array[3]), mat.row3());
+        assert_eq!(Vector7::<usize>::from(array[4]), mat.row4());
+        assert_eq!(Vector7::<usize>::from(array[5]), mat.row5());
+        assert_eq!(Vector7::<usize>::from(array[6]), mat.row6());
     }
     #[test]
     fn matrix_ident()
@@ -160,13 +160,13 @@ mod tests {
             }
         }
         
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[0]), mat.col0());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[1]), mat.col1());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[2]), mat.col2());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[3]), mat.col3());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[4]), mat.col4());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[5]), mat.col5());
-        assert_eq!(<[usize; 7] as Into<Vector7<usize>>>::into(trans[6]), mat.col6());
+        assert_eq!(Vector7::<usize>::from(trans[0]), mat.col0());
+        assert_eq!(Vector7::<usize>::from(trans[1]), mat.col1());
+        assert_eq!(Vector7::<usize>::from(trans[2]), mat.col2());
+        assert_eq!(Vector7::<usize>::from(trans[3]), mat.col3());
+        assert_eq!(Vector7::<usize>::from(trans[4]), mat.col4());
+        assert_eq!(Vector7::<usize>::from(trans[5]), mat.col5());
+        assert_eq!(Vector7::<usize>::from(trans[6]), mat.col6());
     }
     #[test]
     fn matrix_trans()

@@ -14,8 +14,8 @@ pub(crate) fn gen_matrix_square(attr: proc_macro::TokenStream, input: &ItemStruc
         panic!("Attribute must have a size and vector argument.")
     }
     
-    let size_li = &args_parsed[0].expect_lit_int();
-    let vec = &args_parsed[1].expect_type();
+    let size_li = args_parsed[0].expect_lit_int();
+    let vec = args_parsed[1].expect_type();
     
     let size = size_li.base10_parse::<usize>().unwrap();
     
