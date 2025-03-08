@@ -1,14 +1,20 @@
 use zs_core::Float;
-use zs_macros::generate_matrix_square;
+use zs_macros::{generate_matrix_square, MatMult};
 
 use crate::real;
 use crate::{Vector2, Vector3, Vector4};
 
 #[generate_matrix_square(2)]
+#[derive(MatMult)]
+#[mult_args(2, 2, Matrix2::<S>, Matrix2::<S>)]
 pub struct Matrix2 {}
 #[generate_matrix_square(3)]
+#[derive(MatMult)]
+#[mult_args(3, 3, Matrix3::<S>, Matrix3::<S>)]
 pub struct Matrix3 {}
 #[generate_matrix_square(4)]
+#[derive(MatMult)]
+#[mult_args(4, 4, Matrix4::<S>, Matrix4::<S>)]
 pub struct Matrix4 {}
 
 pub type Mat2 = Matrix2<real>;

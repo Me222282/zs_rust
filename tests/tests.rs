@@ -8,7 +8,7 @@ mod tests {
     struct Vector7 {}
     
     #[generate_matrix_square(7)]
-    #[derive(Mul)]
+    #[derive(MatMult)]
     #[mult_args(7, 7, Matrix7::<S>, Matrix7::<S>)]
     struct Matrix7 {}
 

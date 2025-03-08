@@ -32,7 +32,7 @@ pub fn generate_matrix_square(attr: TokenStream, item: TokenStream) -> TokenStre
     return gen_matrix_square(attr, &input).into();
 }
 
-#[proc_macro_derive(Mul, attributes(mult_args))]
+#[proc_macro_derive(MatMult, attributes(mult_args))]
 pub fn generate_matrix_multiply(input: TokenStream) -> TokenStream
 {
     let mut input = parse_macro_input!(input as DeriveInput);
