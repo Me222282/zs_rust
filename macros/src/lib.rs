@@ -4,6 +4,7 @@ mod gen_matrix_square;
 mod gen_matrix_multi;
 mod gen_matrix_con;
 mod backend;
+mod backend_matrix;
 use gen_vector::gen_vector;
 use gen_matrix::gen_matrix;
 use gen_matrix_square::gen_matrix_square;
@@ -15,6 +16,7 @@ use syn::{parse_macro_input, DeriveInput, ItemStruct};
 // use zs_core::*;
 
 pub(crate) use backend::*;
+pub(crate) use backend_matrix::*;
 
 #[proc_macro_attribute]
 pub fn generate_vector(attr: TokenStream, item: TokenStream) -> TokenStream
