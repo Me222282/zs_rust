@@ -1,6 +1,6 @@
 #[cfg(test)]
 mod tests {
-    use zs_macros::{generate_matrix, generate_matrix_square, generate_vector};
+    use zs_macros::{generate_matrix_square, generate_vector};
     use num_traits::Zero;
     // use zs_core;
     
