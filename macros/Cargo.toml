@@ -12,3 +12,6 @@ zs_core = { path = "../core" }
 
 [lib]
 proc-macro = true
+
+[features]
+reversed_matrix = []

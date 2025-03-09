@@ -197,7 +197,7 @@ impl<'a, T, I: Iterator<Item = &'a T>> MatScale<'a, T, I>
         };
     }
 }
-impl<'a, T: ToTokens + 'a, I: Iterator<Item = &'a T>> Iterator for MatScale<'a, T, I>
+impl<'a, T, I: Iterator<Item = &'a T>> Iterator for MatScale<'a, T, I>
 {
     type Item = Vec<&'a T>;
 

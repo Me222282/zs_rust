@@ -14,4 +14,4 @@ members = ["core", "macros"]
 
 [features]
 use_double = []
-reversed_matrix = []
+reversed_matrix = ["zs_macros/reversed_matrix"]
