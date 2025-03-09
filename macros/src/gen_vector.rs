@@ -138,7 +138,8 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
         //     }
         // }
         
-        impl<S: num_traits::Num> #name<S>
+        impl<S: core::ops::Sub<Output = S> + core::ops::Add<Output = S> +
+            core::ops::Mul<Output = S> + Sized> #name<S>
             where Self: Copy
         {
             #[inline]
