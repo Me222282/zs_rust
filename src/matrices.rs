@@ -1,5 +1,5 @@
 use zs_core::Float;
-use zs_macros::{generate_matrix_square, MatMult};
+use zs_macros::{generate_matrix_constructors, generate_matrix_square, MatMult};
 
 use crate::real;
 use crate::{Vector2, Vector3, Vector4};
@@ -7,15 +7,18 @@ use crate::{Vector2, Vector3, Vector4};
 #[generate_matrix_square(2, Vector2)]
 #[derive(MatMult)]
 #[mult_mat_args()]
+#[generate_matrix_constructors(Vector2)]
 // #[mult_args(2, 3, Matrix2x3, Matrix2x3)]
 pub struct Matrix2 {}
 #[generate_matrix_square(3, Vector3)]
 #[derive(MatMult)]
 #[mult_mat_args()]
+#[generate_matrix_constructors(Vector3, Vector2)]
 pub struct Matrix3 {}
 #[generate_matrix_square(4, Vector4)]
 #[derive(MatMult)]
 #[mult_mat_args()]
+#[generate_matrix_constructors(Vector4, Vector3)]
 pub struct Matrix4 {}
 
 // #[generate_matrix(2, 3, Vector2, Vector3)]

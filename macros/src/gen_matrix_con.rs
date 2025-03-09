@@ -1,13 +1,23 @@
 use std::cmp;
 
 use proc_macro2::TokenStream;
-use syn::{ItemStruct, LitInt, TypePath};
+use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token};
 use quote::{quote, ToTokens};
 use crate::*;
 
 pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) -> TokenStream
 {
-    let vec = syn::parse::<TypePath>(attr).expect("Expected a type.");
+    let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
+        .parse(attr)
+        .unwrap();
+    
+    let include_trans = args_parsed.len() == 2;
+    if args_parsed.len() != 1 && !include_trans
+    {
+        panic!("Attribute must have either 1 or 2 type arguments.")
+    }
+    
+    let vec = args_parsed[0].expect_type();
     
     let name = &input.ident;
     
@@ -48,14 +58,39 @@ pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) 
     let scale_names = vector_args_str(min, "scale_");
     let vec_args = vector_args(min);
     
-    let mut sn_tokens = Vec::<TokenStream>::with_capacity(scale_names.len());
-    for s in &scale_names
-    {
-        sn_tokens.push(s.to_token_stream());
-    }
+    let sn_tokens: Vec<_> = scale_names.iter().map(ToTokens::to_token_stream).collect();
     let scale_v: Vec<_> = MatScale::<_, _>::new(row, col, &unit_zero, sn_tokens.iter()).collect();
     
     let scale_name_fn = ident_str![format!("create_scale_{min}").as_str()];
+    
+    let trans_code = if include_trans
+    {
+        let vec_s = args_parsed[1].expect_type();
+        
+        let unit_one = quote! { S::one() };
+        let trans: Vec<_> = MatIdent::<_>::new(row - 1, col, &unit_zero, &unit_one).collect();
+        let vec_s_args = vector_args(col - 1);
+        
+        quote! {
+            impl<S: num_traits::Zero + num_traits::One + Copy> #name<S>
+            {
+                #[inline]
+                pub fn create_translation(offset: #vec_s<S>) -> Self
+                {
+                    return Self {
+                        data: [
+                            #([#(#trans),*]),*,
+                            [#(offset.#vec_s_args),*, S::one()]
+                        ]
+                    };
+                }
+            }
+        }
+    }
+    else
+    {
+        TokenStream::new()
+    };
     
     return quote! {
         #input
@@ -82,5 +117,7 @@ pub(crate) fn gen_matrix_con(attr: proc_macro::TokenStream, input: &ItemStruct) 
                 return Self::#scale_name_fn(#(scale.#vec_args),*);
             }
         }
+        
+        #trans_code
     };
 }

@@ -9,6 +9,8 @@ pub struct Vector3 {}
 #[generate_vector(4)]
 pub struct Vector4 {}
 
+pub type Vector1<S> = S;
+
 pub type Vec2 = Vector2<real>;
 pub type Vec3 = Vector3<real>;
 pub type Vec4 = Vector4<real>;
