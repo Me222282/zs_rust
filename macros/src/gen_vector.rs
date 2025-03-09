@@ -455,5 +455,15 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
                 };
             }
         }
+        
+        impl<S: num_traits::Num> num_traits::Num for #name<S>
+        {
+            type FromStrRadixErr = &'static str;
+            
+            fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr>
+            {
+                Err("string parsing not supported by vectors")
+            }
+        }
     };
 }
