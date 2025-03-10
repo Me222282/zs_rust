@@ -1,28 +1,9 @@
 use proc_macro2::TokenStream;
-use syn::{parse::Parser, punctuated::Punctuated, DeriveInput, Ident, Token, TypePath};
+use syn::{parse::Parser, punctuated::Punctuated, Ident, Token, TypePath};
 use quote::quote;
 use crate::*;
 
-pub(crate) fn gen_vector_multi(input: &mut DeriveInput) -> TokenStream
-{
-    let name = &input.ident;
-    
-    let size = &input.data;
-    let size = match size
-    {
-        syn::Data::Struct(s) => s.fields.len(),
-        _ => panic!("invalid item")
-    };
-    
-    let args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_vec_args"));
-    let impls = args.iter().map(|a| multi_impl(attri_args(a).unwrap(), name, size));
-    
-    return quote! {
-        #(#impls)*
-    };
-}
-
-fn multi_impl(args: TokenStream, name: &Ident, size: usize) -> TokenStream
+pub(crate) fn gen_vector_multi(args: TokenStream, name: &Ident, size: usize) -> TokenStream
 {
     let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
         .parse2(args)

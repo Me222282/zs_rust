@@ -1,7 +1,7 @@
 use std::str::FromStr; 
 
 use proc_macro2::{Ident, Span, TokenStream};
-use syn::{punctuated::Punctuated, AttrStyle, Attribute, Expr, LitInt};
+use syn::{punctuated::Punctuated, AttrStyle, Attribute, LitInt};
 
 macro_rules! ident_vec {
     ($($x:expr),*) => {
@@ -130,22 +130,6 @@ impl syn::parse::Parse for Arg
                 }
             }
         }
-    }
-}
-
-pub(crate) fn expect_lit_int(expr: &Expr) -> &LitInt
-{
-    match expr
-    {
-        Expr::Lit(l) =>
-        {
-            match &l.lit
-            {
-                syn::Lit::Int(i) => &i,
-                _ => panic!("Expected an integer argument")
-            }
-        },
-        _ => panic!("Expected an integer argument")
     }
 }
 

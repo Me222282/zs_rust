@@ -1,26 +1,46 @@
 use proc_macro2::{Ident, Span, TokenStream};
-use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token};
+use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token, TypePath};
 use quote::quote;
 use crate::*;
 
-pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> TokenStream
+pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) -> TokenStream
 {
     let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
         .parse(attr)
         .unwrap();
     
-    if args_parsed.len() != 4
+    let row_li: &LitInt;
+    let col_li: &LitInt;
+    let vec_col: &TypePath;
+    let vec_row: &TypePath;
+    
+    let row: usize;
+    let col: usize;
+    
+    if args_parsed.len() == 4
     {
-        panic!("Attribute must have a rows, columns and vectors argument.")
+        row_li = args_parsed[0].expect_lit_int();
+        col_li = args_parsed[1].expect_lit_int();
+        vec_col = args_parsed[2].expect_type();
+        vec_row = args_parsed[3].expect_type();
+        
+        row = row_li.base10_parse::<usize>().unwrap();
+        col = col_li.base10_parse::<usize>().unwrap();
     }
-    
-    let row_li = args_parsed[0].expect_lit_int();
-    let col_li = args_parsed[1].expect_lit_int();
-    let vec_col = args_parsed[2].expect_type();
-    let vec_row = args_parsed[3].expect_type();
-    
-    let row = row_li.base10_parse::<usize>().unwrap();
-    let col = col_li.base10_parse::<usize>().unwrap();
+    else if args_parsed.len() == 2
+    {
+        row_li = args_parsed[0].expect_lit_int();
+        col_li = row_li;
+        vec_col = args_parsed[1].expect_type();
+        vec_row = vec_col;
+        
+        row = row_li.base10_parse::<usize>().unwrap();
+        col = row;
+    }
+    else
+    {
+        panic!("Attribute must have a rows, columns and vectors argument for either 1 or 2 dimensions.")
+    }
     
     let rows: Vec<_> = Dimension::new(row, "row").collect();
     let cols: Vec<_> = Dimension::new(col, "col").collect();
@@ -43,6 +63,28 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
     
     let size = LitInt::new((row * col).to_string().as_str(), Span::call_site());
     
+    // multiplication implementation
+    let mult_args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_mat_args"));
+    let mult_impls = mult_args.iter().map(|a| gen_matrix_multi(attri_args(a).unwrap(), &input.ident, row));
+    // constructors
+    let const_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_constructors"));
+    if const_args.len() > 1
+    {
+        panic!("Cannot call constructor generation more than once.");
+    }
+    let const_impls = const_args.iter().map(|a| gen_matrix_con(attri_args(a).unwrap(), &input.ident, row, col));
+    // square functions
+    let square_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_square"));
+    if square_args.len() > 1
+    {
+        panic!("Cannot call square generation more than once.");
+    }
+    else if square_args.len() == 1 && row != col
+    {
+        panic!("Cannot call square generation on non-square matrices.");
+    }
+    let square_impls = square_args.iter().map(|a| gen_matrix_square(attri_args(a).unwrap(), &input.ident, row, &cols));
+    
     // let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
     let attrs = &input.attrs;
@@ -55,6 +97,10 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &ItemStruct) -> T
         {
             data: [[S; #col_li]; #row_li]
         }
+        
+        #(#mult_impls)*
+        #(#const_impls)*
+        #(#square_impls)*
         
         impl<S: Copy> #name<S>
         {

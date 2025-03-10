@@ -4,15 +4,10 @@ use syn::{ItemStruct, LitInt};
 use quote::quote;
 use crate::*;
 
-pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::TokenStream
+pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macro2::TokenStream
 {
     let li = syn::parse::<LitInt>(attr).expect("Expected a numerial size.");
     let size = li.base10_parse::<usize>().unwrap();
-    
-    // let input = parse_macro_input!(item as ItemStruct);
-    let name = &input.ident;
-    let attrs = &input.attrs;
-    let vis = &input.vis;
     
     let args = vector_args(size);
     let nums: Vec<_> = Numbers::new(size).collect();
@@ -21,6 +16,15 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
     let uni_one = Ident::new("one", Span::call_site());
     let uni_zero = Ident::new("zero", Span::call_site());
     let units: Vec<_> = MatIdent::<Ident>::new(size, size, &uni_zero, &uni_one).collect();
+    
+    // multiplication implementation
+    let mult_args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_vec_args"));
+    let mult_impls = mult_args.iter().map(|a| gen_vector_multi(attri_args(a).unwrap(), &input.ident, size));
+    
+    // let input = parse_macro_input!(item as ItemStruct);
+    let name = &input.ident;
+    let attrs = &input.attrs;
+    let vis = &input.vis;
     
     // let selfRef = 
     
@@ -31,6 +35,8 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &ItemStruct) -> proc_macro2::
         {
             #(pub #args: S),*
         }
+        
+        #(#mult_impls)*
         
         impl<S: Copy> #name<S>
         {

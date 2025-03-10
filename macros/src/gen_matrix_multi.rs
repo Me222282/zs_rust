@@ -1,40 +1,9 @@
 use proc_macro2::{Span, TokenStream};
-use syn::{parse::Parser, punctuated::Punctuated, DeriveInput, Ident, Token};
+use syn::{parse::Parser, punctuated::Punctuated, Ident, Token};
 use quote::quote;
 use crate::*;
 
-pub(crate) fn gen_matrix_multi(input: &mut DeriveInput) -> TokenStream
-{
-    let name = &input.ident;
-    
-    let ty = &input.data;
-    let ty = match ty
-    {
-        syn::Data::Struct(s) => &s.fields,
-        _ => panic!("invalid item")
-    };
-    let ty = match ty
-    {
-        syn::Fields::Named(n) => n,
-        _ => panic!("fields must be named")
-    };
-    let ty = &ty.named.first().unwrap().ty;
-    let row_li = match ty
-    {
-        syn::Type::Array(a) => expect_lit_int(&a.len),
-        _ => panic!("invalid matrix fields")
-    };
-    let row = row_li.base10_parse::<usize>().unwrap();
-    
-    let args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_mat_args"));
-    let impls = args.iter().map(|a| multi_impl(attri_args(a).unwrap(), name, row));
-    
-    return quote! {
-        #(#impls)*
-    };
-}
-
-fn multi_impl(args: TokenStream, name: &Ident, row: usize) -> TokenStream
+pub(crate) fn gen_matrix_multi(args: TokenStream, name: &Ident, row: usize) -> TokenStream
 {
     let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
         .parse2(args)
