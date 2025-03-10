@@ -32,33 +32,41 @@ pub struct Matrix4 {}
 #[matrix_mult(2, Matrix3x2, Matrix2)]
 #[matrix_mult(3, Matrix3, Matrix2x3)]
 #[matrix_mult(4, Matrix3x4, Matrix2x4)]
+#[matrix_constructors(scale, Vector2)]
 pub struct Matrix2x3 {}
 #[generate_matrix(2, 4, Vector2, Vector4)]
 #[matrix_mult(2, Matrix4x2, Matrix2)]
 #[matrix_mult(3, Matrix4x3, Matrix2x3)]
 #[matrix_mult(4, Matrix4, Matrix2x4)]
+#[matrix_constructors(scale, Vector2)]
 pub struct Matrix2x4 {}
 
 #[generate_matrix(3, 2, Vector3, Vector2)]
 #[matrix_mult(2, Matrix2, Matrix3x2)]
 #[matrix_mult(3, Matrix2x3, Matrix3)]
 #[matrix_mult(4, Matrix2x4, Matrix3x4)]
+#[matrix_constructors(scale, Vector3)]
 pub struct Matrix3x2 {}
 #[generate_matrix(3, 4, Vector3, Vector4)]
 #[matrix_mult(2, Matrix4x2, Matrix3x2)]
 #[matrix_mult(3, Matrix4x3, Matrix3)]
 #[matrix_mult(4, Matrix4, Matrix3x4)]
+#[matrix_constructors(scale, Vector3)]
+#[matrix_constructors(trans, Vector3, Vector2)]
 pub struct Matrix3x4 {}
 
 #[generate_matrix(4, 2, Vector4, Vector2)]
 #[matrix_mult(2, Matrix2, Matrix4x2)]
 #[matrix_mult(3, Matrix2x3, Matrix4x3)]
 #[matrix_mult(4, Matrix2x4, Matrix4)]
+#[matrix_constructors(scale, Vector4)]
 pub struct Matrix4x2 {}
 #[generate_matrix(4, 3, Vector4, Vector3)]
 #[matrix_mult(2, Matrix3x2, Matrix4x2)]
 #[matrix_mult(3, Matrix3, Matrix4x3)]
 #[matrix_mult(4, Matrix3x4, Matrix4)]
+#[matrix_constructors(scale, Vector4)]
+#[matrix_constructors(trans, Vector2, Vector3)]
 pub struct Matrix4x3 {}
 
 pub type Mat2 = Matrix2<real>;
