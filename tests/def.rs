@@ -10,5 +10,6 @@ pub struct Vector6 {}
 #[generate_matrix(7, Vector7)]
 #[matrix_square]
 #[mult_mat_args]
-#[matrix_constructors(Vector7, Vector6)]
+#[matrix_constructors(scale, Vector7)]
+#[matrix_constructors(trans, Vector6)]
 pub struct Matrix7 {}

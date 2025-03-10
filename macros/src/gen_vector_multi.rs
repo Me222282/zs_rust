@@ -9,7 +9,7 @@ pub(crate) fn gen_vector_multi(args: TokenStream, name: &Ident, size: usize) -> 
         .parse2(args)
         .unwrap();
     
-    let rhs: &TypePath;
+    let rhs: TypePath;
     let out: TypePath;
     
     let col: usize;
@@ -18,7 +18,7 @@ pub(crate) fn gen_vector_multi(args: TokenStream, name: &Ident, size: usize) -> 
     {
         let col_li = args_parsed[0].expect_lit_int();
         rhs = args_parsed[1].expect_type();
-        out = args_parsed[2].expect_type().clone();
+        out = args_parsed[2].expect_type();
         
         col = col_li.base10_parse::<usize>().unwrap();
     }
@@ -31,7 +31,7 @@ pub(crate) fn gen_vector_multi(args: TokenStream, name: &Ident, size: usize) -> 
     }
     else
     {
-        panic!("Attribute must have either a type argument or a size and 2 types.")
+        panic!("Attribute must have either a type argument or a size and 2 types.");
     }
     
     let cols: Vec<_> = Dimension::new(col, "col").collect();

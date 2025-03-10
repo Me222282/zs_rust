@@ -5,20 +5,22 @@ use crate::real;
 use crate::{Vector2, Vector3, Vector4};
 
 #[generate_matrix(2, Vector2)]
-#[mult_mat_args]
 #[matrix_square]
-#[matrix_constructors(Vector2)]
+#[mult_mat_args]
+#[matrix_constructors(scale, Vector2)]
 // #[mult_args(2, 3, Matrix2x3, Matrix2x3)]
 pub struct Matrix2 {}
 #[generate_matrix(3, Vector3)]
 #[matrix_square]
 #[mult_mat_args]
-#[matrix_constructors(Vector3, Vector2)]
+#[matrix_constructors(scale, Vector3)]
+#[matrix_constructors(trans, Vector2)]
 pub struct Matrix3 {}
 #[generate_matrix(4, Vector4)]
 #[matrix_square]
 #[mult_mat_args]
-#[matrix_constructors(Vector4, Vector3)]
+#[matrix_constructors(scale, Vector4)]
+#[matrix_constructors(trans, Vector3)]
 pub struct Matrix4 {}
 
 // #[generate_matrix(2, 3, Vector2, Vector3)]

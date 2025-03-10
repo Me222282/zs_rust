@@ -9,7 +9,7 @@ pub(crate) fn gen_matrix_multi(args: TokenStream, name: &Ident, row: usize) -> T
         .parse2(args)
         .unwrap();
     
-    let rhs: &syn::TypePath;
+    let rhs: syn::TypePath;
     let out: syn::TypePath;
     
     let col: usize;
@@ -19,7 +19,7 @@ pub(crate) fn gen_matrix_multi(args: TokenStream, name: &Ident, row: usize) -> T
         3 => {
             let col_li = args_parsed[0].expect_lit_int();
             rhs = args_parsed[1].expect_type();
-            out = args_parsed[2].expect_type().clone();
+            out = args_parsed[2].expect_type();
             
             col = col_li.base10_parse::<usize>().unwrap();
         },
@@ -31,8 +31,8 @@ pub(crate) fn gen_matrix_multi(args: TokenStream, name: &Ident, row: usize) -> T
             col = col_li.base10_parse::<usize>().unwrap();
         },
         0 => {
-            out = ident_type_path(name.clone());
-            rhs = &out;
+            rhs = ident_type_path(name.clone());
+            out = rhs.clone();
             
             col = row;
         },

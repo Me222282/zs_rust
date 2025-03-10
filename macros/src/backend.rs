@@ -19,6 +19,14 @@ macro_rules! ident_str {
 
 pub(crate) use ident_str;
 
+macro_rules! ident_eq {
+    ($x:expr, $y:expr) => {
+        *$x == proc_macro2::Ident::new($y, $x.span())
+    };
+}
+
+pub(crate) use ident_eq;
+
 pub(crate) struct Dimension
 {
     max: usize,
@@ -90,6 +98,7 @@ impl Iterator for Numbers
 pub(crate) enum Arg
 {
     Lit(LitInt),
+    Option(Ident),
     Type(syn::TypePath)
 }
 impl Arg
@@ -103,12 +112,22 @@ impl Arg
         }
     }
 
-    pub fn expect_type(&self) -> &syn::TypePath
+    pub fn expect_type(&self) -> syn::TypePath
     {
         match self
         {
-            Arg::Type(t) => &t,
+            Arg::Type(t) => t.clone(),
+            Arg::Option(o) => ident_type_path(o.clone()),
             _ => panic!("Expected a type argument")
+        }
+    }
+    
+    pub fn expect_option(&self) -> &Ident
+    {
+        match self
+        {
+            Arg::Option(i) => &i,
+            _ => panic!("Expected an option argument")
         }
     }
 }
@@ -122,11 +141,19 @@ impl syn::parse::Parse for Arg
             Ok(d) => Ok(Arg::Lit(d)),
             Err(_) =>
             {
-                let r = syn::TypePath::parse(input);
+                let r = Ident::parse(input);
                 match r
                 {
-                    Ok(d) => Ok(Arg::Type(d)),
-                    Err(e) => Err(e)
+                    Ok(d) => Ok(Arg::Option(d)),
+                    Err(_) => 
+                    {
+                        let r = syn::TypePath::parse(input);
+                        match r
+                        {
+                            Ok(d) => Ok(Arg::Type(d)),
+                            Err(e) => Err(e)
+                        }
+                    }
                 }
             }
         }
@@ -187,10 +214,7 @@ pub(crate) fn is_attri(attri: &Attribute, str: &str) -> bool
     return match i
     {
         None => false,
-        Some(i) =>
-        {
-            *i == Ident::new(str, i.span())
-        }
+        Some(i) => ident_eq!(i, str)
     };
 }
 pub(crate) fn attri_args(attri: &Attribute) -> Option<TokenStream>

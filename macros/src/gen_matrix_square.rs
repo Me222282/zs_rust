@@ -7,7 +7,7 @@ pub(crate) fn gen_matrix_square(attr: TokenStream, name: &Ident, _size: usize, c
 {
     if !attr.is_empty()
     {
-        panic!("Arguments should not be provided.")
+        panic!("Arguments should not be provided.");
     }
     
     // let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated

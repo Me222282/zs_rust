@@ -11,8 +11,8 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     
     let row_li: &LitInt;
     let col_li: &LitInt;
-    let vec_col: &TypePath;
-    let vec_row: &TypePath;
+    let vec_col: TypePath;
+    let vec_row: TypePath;
     
     let row: usize;
     let col: usize;
@@ -32,14 +32,14 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
         row_li = args_parsed[0].expect_lit_int();
         col_li = row_li;
         vec_col = args_parsed[1].expect_type();
-        vec_row = vec_col;
+        vec_row = vec_col.clone();
         
         row = row_li.base10_parse::<usize>().unwrap();
         col = row;
     }
     else
     {
-        panic!("Attribute must have a rows, columns and vectors argument for either 1 or 2 dimensions.")
+        panic!("Attribute must have a rows, columns and vectors argument for either 1 or 2 dimensions.");
     }
     
     let rows: Vec<_> = Dimension::new(row, "row").collect();
@@ -68,10 +68,6 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     let mult_impls = mult_args.iter().map(|a| gen_matrix_multi(attri_args(a).unwrap(), &input.ident, row));
     // constructors
     let const_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_constructors"));
-    if const_args.len() > 1
-    {
-        panic!("Cannot call constructor generation more than once.");
-    }
     let const_impls = const_args.iter().map(|a| gen_matrix_con(attri_args(a).unwrap(), &input.ident, row, col));
     // square functions
     let square_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_square"));
