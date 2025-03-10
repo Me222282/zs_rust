@@ -45,7 +45,7 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     let rows: Vec<_> = Dimension::new(row, "row").collect();
     let cols: Vec<_> = Dimension::new(col, "col").collect();
     
-    let x_nums: Vec<_> = Numbers::new(col).collect();
+    // let x_nums: Vec<_> = Numbers::new(col).collect();
     let y_nums: Vec<_> = Numbers::new(row).collect();
     
     let range_start: Vec<_> = MatIndex::new(row, col, 0).collect();
@@ -113,7 +113,7 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
             #[inline]
             pub fn #rows(&self) -> #vec_row<S>
             {
-                return #vec_row::<S>::from(self.data[#x_nums]);
+                return #vec_row::<S>::from(self.data[#y_nums]);
             })*
             
             #(
