@@ -4,13 +4,13 @@ use crate::real;
 use crate::{Matrix2, Matrix3, Matrix4};
 
 #[generate_vector(2)]
-#[mult_vec_args(Matrix2)]
+#[vector_mult(Matrix2)]
 pub struct Vector2 {}
 #[generate_vector(3)]
-#[mult_vec_args(Matrix3)]
+#[vector_mult(Matrix3)]
 pub struct Vector3 {}
 #[generate_vector(4)]
-#[mult_vec_args(Matrix4)]
+#[vector_mult(Matrix4)]
 pub struct Vector4 {}
 
 pub type Vector1<S> = S;

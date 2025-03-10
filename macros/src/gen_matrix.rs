@@ -64,7 +64,7 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     let size = LitInt::new((row * col).to_string().as_str(), Span::call_site());
     
     // multiplication implementation
-    let mult_args = find_remove(&mut input.attrs, |a| is_attri(a, "mult_mat_args"));
+    let mult_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_mult"));
     let mult_impls = mult_args.iter().map(|a| gen_matrix_multi(attri_args(a).unwrap(), &input.ident, row));
     // constructors
     let const_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_constructors"));
