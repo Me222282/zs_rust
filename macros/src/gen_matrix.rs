@@ -63,9 +63,6 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     
     let size = LitInt::new((row * col).to_string().as_str(), Span::call_site());
     
-    // multiplication implementation
-    let mult_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_mult"));
-    let mult_impls = mult_args.iter().map(|a| gen_matrix_multi(attri_args(a).unwrap(), &input.ident, row));
     // constructors
     let const_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_constructors"));
     let const_impls = const_args.iter().map(|a| gen_matrix_con(attri_args(a).unwrap(), &input.ident, row, col));
@@ -86,6 +83,29 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     let attrs = &input.attrs;
     let vis = &input.vis;
     
+    let assign_vec = if row == col
+    {
+        let args = vector_args(col);
+        
+        quote! {
+            impl<S: num_traits::Num + Copy> core::ops::MulAssign<#name<S>> for #vec_col<S>
+            {
+                #[inline]
+                fn mul_assign(&mut self, rhs: #name<S>)
+                {
+                    let r = #vec_col::<S>::new(
+                        #(self.dot(rhs.#cols())),*
+                    );
+                    #(self.#args = r.#args);*
+                }
+            }
+        }
+    }
+    else
+    {
+        TokenStream::new()
+    };
+    
     return quote! {
         #(#attrs)*
         #[derive(Clone, Copy, Debug, PartialEq)]
@@ -94,7 +114,6 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
             data: [[S; #col_li]; #row_li]
         }
         
-        #(#mult_impls)*
         #(#const_impls)*
         #(#square_impls)*
         
@@ -441,6 +460,21 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
                 );
             }
         }
+        
+        impl<S: num_traits::Num + Copy> core::ops::Mul<#name<S>> for #vec_col<S>
+        {
+            type Output = #vec_row<S>;
+            
+            #[inline]
+            fn mul(self, rhs: #name<S>) -> Self::Output
+            {
+                return Self::Output::new(
+                    #(self.dot(rhs.#cols())),*
+                );
+            }
+        }
+        
+        #assign_vec
         
     };
 }

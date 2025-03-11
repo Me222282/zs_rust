@@ -17,10 +17,6 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
     let uni_zero = Ident::new("zero", Span::call_site());
     let units: Vec<_> = MatIdent::<Ident>::new(size, size, &uni_zero, &uni_one).collect();
     
-    // multiplication implementation
-    let mult_args = find_remove(&mut input.attrs, |a| is_attri(a, "vector_mult"));
-    let mult_impls = mult_args.iter().map(|a| gen_vector_multi(attri_args(a).unwrap(), &input.ident, size));
-    
     // let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
     let attrs = &input.attrs;
@@ -35,8 +31,6 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
         {
             #(pub #args: S),*
         }
-        
-        #(#mult_impls)*
         
         impl<S: Copy> #name<S>
         {

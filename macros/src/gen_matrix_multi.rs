@@ -3,45 +3,60 @@ use syn::{parse::Parser, punctuated::Punctuated, Ident, Token};
 use quote::quote;
 use crate::*;
 
-pub(crate) fn gen_matrix_multi(args: TokenStream, name: &Ident, row: usize) -> TokenStream
+pub(crate) fn gen_matrix_multi(args: TokenStream) -> TokenStream
 {
     let args_parsed = Punctuated::<Arg, Token![,]>::parse_terminated
         .parse2(args)
         .unwrap();
     
+    let name: syn::TypePath;
     let rhs: syn::TypePath;
     let out: syn::TypePath;
     
+    let row: usize;
     let col: usize;
+    let assign: bool;
     
     match args_parsed.len()
     {
-        3 => {
-            let col_li = args_parsed[0].expect_lit_int();
-            rhs = args_parsed[1].expect_type();
-            out = args_parsed[2].expect_type();
+        5 => {
+            let row_li = args_parsed[0].expect_lit_int();
+            name = args_parsed[1].expect_type();
+            rhs = args_parsed[2].expect_type();
+            let col_li = args_parsed[3].expect_lit_int();
+            out = args_parsed[4].expect_type();
+            assign = false;
             
             col = col_li.base10_parse::<usize>().unwrap();
+            row = row_li.base10_parse::<usize>().unwrap();
+        },
+        4 => {
+            let row_li = args_parsed[0].expect_lit_int();
+            name = args_parsed[1].expect_type();
+            rhs = args_parsed[2].expect_type();
+            let col_li = args_parsed[3].expect_lit_int();
+            out = name.clone();
+            assign = true;
+            
+            col = col_li.base10_parse::<usize>().unwrap();
+            row = row_li.base10_parse::<usize>().unwrap();
         },
         2 => {
-            let col_li = args_parsed[0].expect_lit_int();
+            let size_li = args_parsed[0].expect_lit_int();
             rhs = args_parsed[1].expect_type();
-            out = ident_type_path(name.clone());
+            name = rhs.clone(); 
+            out = name.clone();
+            assign = true;
             
-            col = col_li.base10_parse::<usize>().unwrap();
-        },
-        0 => {
-            rhs = ident_type_path(name.clone());
-            out = rhs.clone();
-            
-            col = row;
+            col = size_li.base10_parse::<usize>().unwrap();
+            row = col;
         },
         _ => panic!("Attribute must have either 0, 2 or 3 arguments.")
     }
     
     let code: Vec<_> = MatMulti::new(row, col).collect();
     
-    let assign = if out.path.segments.last().unwrap().ident.eq(name)
+    let assign = if assign
     {
         quote! {
             impl<S: num_traits::Num + Copy>
