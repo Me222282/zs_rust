@@ -7,12 +7,21 @@ use crate::*;
 
 pub(crate) fn gen_matrix_con_rotate(args: &Punctuated::<Arg, Token![,]>, name: &Ident, row: usize, col: usize) -> TokenStream
 {
-    if args.len() != 1
-    {
-        panic!("Attribute must not have extra arguments.")
-    }
+    let min: usize;
     
-    let min = cmp::min(row, col);
+    if args.len() == 2
+    {
+        let li = args[1].expect_lit_int();
+        min = li.base10_parse::<usize>().unwrap();
+    }
+    else if args.len() == 1
+    {
+        min = cmp::min(row, col);
+    }
+    else
+    {
+        panic!("Attribute must have either 0 or 1 size arguments.")
+    }
     
     let comb = gen_combinations(min);
     let vec_args = vector_args(min);
