@@ -17,7 +17,7 @@ pub struct Matrix2 {}
 #[matrix_mult(2, Matrix3x2, Matrix3x2)]
 #[matrix_mult]
 #[matrix_mult(4, Matrix3x4, Matrix3x4)]
-#[matrix_constructors(scale, Vector3)]
+#[matrix_constructors(scale, 3, Vector3, 2, Vector2)]
 #[matrix_constructors(trans, Vector2)]
 #[matrix_constructors(rotate)]
 pub struct Matrix3 {}
@@ -26,8 +26,9 @@ pub struct Matrix3 {}
 #[matrix_mult(2, Matrix4x2, Matrix4x2)]
 #[matrix_mult(3, Matrix4x3, Matrix4x3)]
 #[matrix_mult]
-#[matrix_constructors(scale, Vector4)]
+#[matrix_constructors(scale, 4, Vector4, 3, Vector3, 2, Vector2)]
 #[matrix_constructors(trans, Vector3)]
+#[matrix_constructors(trans, 2, 2, Vector2, Vector2)]
 #[matrix_constructors(rotate, 3)]
 pub struct Matrix4 {}
 
