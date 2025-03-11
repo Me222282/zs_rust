@@ -13,6 +13,11 @@ pub(crate) fn gen_matrix_con_rotate(args: &Punctuated::<Arg, Token![,]>, name: &
     {
         let li = args[1].expect_lit_int();
         min = li.base10_parse::<usize>().unwrap();
+        
+        if (min > cmp::min(row, col))
+        {
+            panic!("Provided size is too large.")
+        }
     }
     else if args.len() == 1
     {
