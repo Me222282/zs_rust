@@ -26,9 +26,7 @@ pub(crate) fn gen_matrix_con(attr: TokenStream, name: &Ident, row: usize, col: u
     }
     if ident_eq!(opt, "trans")
     {
-        let q = gen_matrix_con_trans(&args_parsed, name, row, col);
-        println!("{}", q);
-        return q;
+        return gen_matrix_con_trans(&args_parsed, name, row, col);
     }
     
     panic!("Invalid option.");
