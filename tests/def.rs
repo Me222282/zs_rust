@@ -12,4 +12,5 @@ pub struct Vector6 {}
 #[matrix_mult]
 #[matrix_constructors(scale, Vector7)]
 #[matrix_constructors(trans, Vector6)]
+#[matrix_constructors(rotate)]
 pub struct Matrix7 {}
