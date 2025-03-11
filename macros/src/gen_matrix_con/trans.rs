@@ -3,8 +3,10 @@ use syn::{punctuated::Punctuated, Ident, Token, TypePath};
 use quote::quote;
 use crate::*;
 
+#[allow(unused_variables)]
+#[allow(unused_assignments)]
 pub(crate) fn gen_matrix_con_trans(args: &Punctuated::<Arg, Token![,]>, name: &Ident, row: usize, col: usize) -> TokenStream
-{
+{   
     let vec_r: TypePath;
     let vec_c: TypePath;
     
