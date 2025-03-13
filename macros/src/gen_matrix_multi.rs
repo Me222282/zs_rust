@@ -56,16 +56,39 @@ pub(crate) fn gen_matrix_multi(args: TokenStream) -> TokenStream
     
     let code: Vec<_> = MatMulti::new(row, col).collect();
     
-    let assign = if assign
+    let assign_code = if assign
     {
         quote! {
             impl<S: num_traits::Num + Copy>
-            core::ops::MulAssign<#rhs<S>> for #name<S>
+                core::ops::MulAssign<#rhs<S>> for #name<S>
             {
                 #[inline]
                 fn mul_assign(&mut self, rhs: #rhs<S>)
                 {
                     self.data = [#([#(#code),*]),*];
+                }
+            }
+        }
+    }
+    else
+    {
+        TokenStream::new()
+    };
+    
+    let one = if row == col && assign
+    {
+        quote! {
+            impl<S: num_traits::Num + Copy> num_traits::One for #name<S>
+            {
+                #[inline]
+                fn one() -> Self
+                {
+                    return Self::identity();
+                }
+                #[inline]
+                fn is_one(&self) -> bool
+                {
+                    return self == &Self::one();
                 }
             }
         }
@@ -89,7 +112,8 @@ pub(crate) fn gen_matrix_multi(args: TokenStream) -> TokenStream
                 ].into();
             }
         }
-        #assign
+        #assign_code
+        #one
     };
 }
 
