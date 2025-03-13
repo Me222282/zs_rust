@@ -1,5 +1,22 @@
+mod float_rad;
+mod num_rad;
+mod float_deg;
+mod num_deg;
+mod float_gra;
+mod num_gra;
+
+// pub use float_rad::*;
+// pub use num_rad::*;
+// pub use float_deg::*;
+// pub use num_deg::*;
+// pub use float_gra::*;
+// pub use num_gra::*;
+
+#[derive(PartialEq, PartialOrd, Clone, Copy)]
 pub struct Radian<S>(S);
+#[derive(PartialEq, PartialOrd, Clone, Copy)]
 pub struct Degree<S>(S);
+#[derive(PartialEq, PartialOrd, Clone, Copy)]
 pub struct Gradian<S>(S);
 
 const RAD_DEG_32: f32 = 180.0 / std::f32::consts::PI;
