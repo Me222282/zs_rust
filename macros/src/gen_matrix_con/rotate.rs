@@ -35,19 +35,24 @@ pub(crate) fn gen_matrix_con_rotate(args: &Punctuated::<Arg, Token![,]>, name: &
     
     let unit_one = quote! { S::one() };
     let unit_zero = quote! { S::zero() };
-    let sin = quote! { angle.sin() };
-    let n_sin = quote! { -angle.sin() };
-    let cos = quote! { angle.cos() };
+    let sin = quote! { sin };
+    let n_sin = quote! { -sin };
+    let cos = quote! { cos };
     let rotate: Vec<_> = MatRot::new(comb.iter(), row, col,
         &unit_zero, &unit_one, &sin, &n_sin, &cos).collect();
     
     return quote! {
         impl<S: num_traits::Float + Copy> #name<S>
+            where zs_core::Radian<S>: Into<S>
         {
             #(
             #[inline]
-            pub fn #fn_names(angle: S) -> Self
+            pub fn #fn_names(angle: zs_core::Radian<S>) -> Self
             {
+                let v = angle.into();
+                let sin = v.sin();
+                let cos = v.cos();
+                
                 return Self {
                     data: [#([#(#rotate),*]),*]
                 };

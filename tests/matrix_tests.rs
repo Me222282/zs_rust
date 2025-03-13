@@ -282,4 +282,9 @@ mod matrix_tests
         let mult = mat * vec;
         assert_eq!(r, mult);
     }
+    #[test]
+    fn rotate()
+    {
+        Matrix7::<f32>::create_rotation_i0i1(3.0.into());
+    }
 }
