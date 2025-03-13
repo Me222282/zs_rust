@@ -1,4 +1,4 @@
-use std::str::FromStr; 
+use std::{panic::{self, UnwindSafe}, str::FromStr}; 
 
 use proc_macro2::{Ident, Span, TokenStream};
 use syn::{punctuated::Punctuated, AttrStyle, Attribute, LitInt};
@@ -278,4 +278,28 @@ pub(crate) fn ident_type_path(ident: Ident) -> syn::TypePath
             segments: punc
         }
     };
+}
+
+pub(crate) fn rethrow_panic<F: FnOnce() -> R + UnwindSafe, R>(option: &str, func: F) -> R
+{
+    let r = panic::catch_unwind(func);
+    match r
+    {
+        Ok(v) => v,
+        Err(e) =>
+        {
+            let mut str = match e.downcast_ref::<&'static str>() {
+
+                Some(msg) => (*msg).to_string(),
+        
+                None => match e.downcast_ref::<String>() {
+        
+                    Some(msg) => msg.clone(),
+                    None => panic::resume_unwind(e)
+                },
+            };
+            str.insert_str(0, option);
+            panic!("{}", str);
+        }
+    }
 }

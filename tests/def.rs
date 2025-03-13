@@ -8,7 +8,7 @@ pub struct Vector6 {}
 
 #[generate_matrix(7, Vector7)]
 #[matrix_square]
-#[matrix_constructors(scale, Vector7)]
+#[matrix_constructors(scale, 7, Vector7, 6, Vector6)]
 #[matrix_constructors(trans, Vector6)]
 #[matrix_constructors(rotate)]
 pub struct Matrix7 {}

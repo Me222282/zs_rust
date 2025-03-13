@@ -17,22 +17,31 @@ pub(crate) fn gen_matrix_con(attr: TokenStream, name: &Ident, row: usize, col: u
     
     if args_parsed.len() < 1
     {
-        panic!("Attribute must have constructor specifier arguments.");
+        panic!("Attribute must have constructor specifier argument.");
     }
     
     let opt = args_parsed[0].expect_option();
     
     if ident_eq!(opt, "scale")
     {
-        return gen_matrix_con_scale(&args_parsed, name, row, col);
+        return rethrow_panic("Scale: ", ||
+        {
+            gen_matrix_con_scale(&args_parsed, name, row, col)
+        });
     }
     if ident_eq!(opt, "trans")
     {
-        return gen_matrix_con_trans(&args_parsed, name, row, col);
+        return rethrow_panic("Trans: ", ||
+        {
+            gen_matrix_con_trans(&args_parsed, name, row, col)
+        });
     }
     if ident_eq!(opt, "rotate")
     {
-        return gen_matrix_con_rotate(&args_parsed, name, row, col);
+        return rethrow_panic("Rotate: ", ||
+        {
+            gen_matrix_con_rotate(&args_parsed, name, row, col)
+        });
     }
     
     panic!("Invalid option.");

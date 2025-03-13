@@ -1,3 +1,5 @@
+use std::panic;
+
 use proc_macro2::{Ident, Span, TokenStream};
 use syn::{parse::Parser, punctuated::Punctuated, ItemStruct, LitInt, Token, TypePath};
 use quote::quote;
@@ -65,7 +67,13 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     
     // constructors
     let const_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_constructors"));
-    let const_impls = const_args.iter().map(|a| gen_matrix_con(attri_args(a).unwrap(), &input.ident, row, col));
+    let const_impls = const_args.iter().map(|a|
+    {
+        rethrow_panic("Matrix constructor: ", ||
+        {
+            gen_matrix_con(attri_args(a).unwrap(), &input.ident, row, col)
+        })
+    });
     // square functions
     let square_args = find_remove(&mut input.attrs, |a| is_attri(a, "matrix_square"));
     if square_args.len() > 1
@@ -76,7 +84,13 @@ pub(crate) fn gen_matrix(attr: proc_macro::TokenStream, input: &mut ItemStruct) 
     {
         panic!("Cannot call square generation on non-square matrices.");
     }
-    let square_impls = square_args.iter().map(|a| gen_matrix_square(attri_args(a).unwrap(), &input.ident, row, &cols));
+    let square_impls = square_args.iter().map(|a|
+    {
+        rethrow_panic("Matrix square: ", ||
+        {
+            gen_matrix_square(attri_args(a).unwrap(), &input.ident, row, &cols)
+        })
+    });
     
     // let input = parse_macro_input!(item as ItemStruct);
     let name = &input.ident;
