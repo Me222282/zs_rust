@@ -16,6 +16,28 @@ const DEG_GRA_64: f64 = 200.0 / 180.0;
 const GRA_RAD_64: f64 = std::f64::consts::PI / 200.0;
 const GRA_DEG_64: f64 = 180.0 / 200.0;
 
+impl Radian<f32>
+{
+    pub const fn degrees(value: f32) -> Self
+    {
+        Self(value * DEG_RAD_32)
+    }
+    pub const fn gradians(value: f32) -> Self
+    {
+        Self(value * GRA_RAD_32)
+    }
+}
+impl Radian<f64>
+{
+    pub const fn degrees(value: f64) -> Self
+    {
+        Self(value * DEG_RAD_64)
+    }
+    pub const fn gradians(value: f64) -> Self
+    {
+        Self(value * GRA_RAD_64)
+    }
+}
 impl<S> From<S> for Radian<S>
 {
     fn from(value: S) -> Self
@@ -66,6 +88,28 @@ impl Into<f64> for Radian<f64>
     }
 }
 
+impl Degree<f32>
+{
+    pub const fn radians(value: f32) -> Self
+    {
+        Self(value * RAD_DEG_32)
+    }
+    pub const fn gradians(value: f32) -> Self
+    {
+        Self(value * GRA_DEG_32)
+    }
+}
+impl Degree<f64>
+{
+    pub const fn radians(value: f64) -> Self
+    {
+        Self(value * RAD_DEG_64)
+    }
+    pub const fn gradians(value: f64) -> Self
+    {
+        Self(value * GRA_DEG_64)
+    }
+}
 impl<S> From<S> for Degree<S>
 {
     fn from(value: S) -> Self
@@ -116,6 +160,28 @@ impl Into<f64> for Degree<f64>
     }
 }
 
+impl Gradian<f32>
+{
+    pub const fn radians(value: f32) -> Self
+    {
+        Self(value * RAD_GRA_32)
+    }
+    pub const fn degrees(value: f32) -> Self
+    {
+        Self(value * DEG_GRA_32)
+    }
+}
+impl Gradian<f64>
+{
+    pub const fn radians(value: f64) -> Self
+    {
+        Self(value * RAD_GRA_64)
+    }
+    pub const fn degrees(value: f64) -> Self
+    {
+        Self(value * DEG_GRA_64)
+    }
+}
 impl<S> From<S> for Gradian<S>
 {
     fn from(value: S) -> Self

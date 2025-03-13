@@ -4,6 +4,7 @@ mod def;
 mod matrix_tests
 {
     use num_traits::Zero;
+    use zs_core::Radian;
     // use zs_core;
     
     use crate::def::*;
@@ -285,6 +286,6 @@ mod matrix_tests
     #[test]
     fn rotate()
     {
-        Matrix7::<f32>::create_rotation_i0i1(3.0.into());
+        Matrix7::<f32>::create_rotation_i0i1(Radian::<f32>::degrees(30_f32));
     }
 }
