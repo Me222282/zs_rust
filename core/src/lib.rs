@@ -1,7 +1,10 @@
+mod angles;
+
 pub use num_traits::*;
 use std::fmt::{Display, Formatter, Result};
 use std::error::Error;
 
+pub use crate::angles::*;
 // pub trait VectorType<S: Num>
 // {
 //     pub fn dot(self, )

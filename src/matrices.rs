@@ -1,4 +1,4 @@
-use zs_core::Float;
+// use zs_core::Float;
 use zs_macros::{generate_matrix, generate_matrix_multiply};
 
 use crate::real;
@@ -91,15 +91,3 @@ pub type Mat3x2 = Matrix3x2<real>;
 pub type Mat3x4 = Matrix3x4<real>;
 pub type Mat4x2 = Matrix4x2<real>;
 pub type Mat4x3 = Matrix4x3<real>;
-
-impl<S: Float> Matrix2<S>
-{
-    #[inline]
-    pub fn create_rotation(angle: S) -> Self
-    {
-        let cos = angle.cos();
-        let sin = angle.sin();
-
-        return [[cos, sin], [-sin, cos]].into();
-    }
-}
