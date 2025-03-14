@@ -53,4 +53,12 @@ mod line_tests
         assert!(a.contains(p1));
         assert!(!a.contains(p2));
     }
+    
+    #[test]
+    fn display()
+    {
+        let line = Line2::<f32>::new([4.0, 5.0].into(), [2.0, 19.5].into());
+        
+        assert_eq!(format!("{line}"), "y = 1.25x + 17");
+    }
 }

@@ -93,4 +93,12 @@ mod vector_tests
         let exp = Vector7::new(13, 26, 21, -8, 38, 29, 11);
         assert_eq!(res, exp);
     }
+    
+    #[test]
+    fn display()
+    {
+        let vec = Vector7::new(1, -4, 3, 7, 2, -19, 5);
+        
+        assert_eq!(format!("{vec}"), "{1, -4, 3, 7, 2, -19, 5}");
+    }
 }

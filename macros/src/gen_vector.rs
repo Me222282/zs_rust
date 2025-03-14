@@ -1,6 +1,6 @@
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
-use syn::{ItemStruct, LitInt};
+use syn::{ItemStruct, LitInt, LitStr};
 use quote::quote;
 use crate::*;
 
@@ -22,7 +22,13 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
     let attrs = &input.attrs;
     let vis = &input.vis;
     
-    // let selfRef = 
+    let mut to_str: String = "{{{}".to_string();
+    for _ in 0..(size-1)
+    {
+        to_str.push_str(", {}");
+    }
+    to_str.push_str("}}");
+    let dis_str = LitStr::new(to_str.as_str(), Span::call_site());
     
     return quote! {
         #(#attrs)*
@@ -427,6 +433,14 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
             fn from_str_radix(str: &str, radix: u32) -> Result<Self, Self::FromStrRadixErr>
             {
                 Err("string parsing not supported by vectors")
+            }
+        }
+        
+        impl<S: std::fmt::Display> std::fmt::Display for #name<S>
+        {
+            fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+            {
+                return write!(f, #dis_str, #(self.#args),*);
             }
         }
     };

@@ -1,4 +1,4 @@
-use std::ops::{Mul, Neg, Sub};
+use std::{fmt::Display, ops::{Mul, Neg, Sub}};
 
 use zs_core::*;
 
@@ -135,5 +135,37 @@ impl<S: Copy> Line2<S>
         let diff = self.loc - other.loc;
         
         return diff.is_zero() || diff.perp_dot(self.dir).is_zero();
+    }
+}
+
+impl<S: Display + NumOps + Zero + PartialOrd + Neg<Output = S> + Copy + One> Display for Line2<S>
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        if self.dir.x.is_zero()
+        {
+            return write!(f, "x = {}", self.loc.x);
+        }
+        if self.dir.y.is_zero()
+        {
+            return write!(f, "y = {}", self.loc.y);
+        }
+        let m = self.dir.y / self.dir.x;
+        let c = self.loc.y - (m * self.loc.x);
+
+        if c < S::zero()
+        {
+            return write!(f, "y = {m}x - {}", -c);
+        }
+        if c.is_zero()
+        {
+            return write!(f, "y = {m}x");
+        }
+        if m < S::zero()
+        {
+            return write!(f, "y = {c} - {}x", -m);
+        }
+
+        return write!(f, "y = {m}x + {c}");
     }
 }
