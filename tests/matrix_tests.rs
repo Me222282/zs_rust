@@ -3,8 +3,10 @@ mod def;
 #[cfg(test)]
 mod matrix_tests
 {
+    use std::f32::consts;
+
     use num_traits::Zero;
-    use zs_core::Radian;
+    use zs_core::Float;
     // use zs_core;
     
     use crate::def::*;
@@ -197,7 +199,7 @@ mod matrix_tests
         assert_eq!(zero, mat);
     }
     #[test]
-    fn scale()
+    fn scale_s()
     {
         let s = 74;
         let mat = Matrix7::<usize>::create_scale(s);
@@ -286,6 +288,41 @@ mod matrix_tests
     #[test]
     fn rotate()
     {
-        Matrix7::<f32>::create_rotation_i0i1(Radian::<f32>::degrees(30_f32));
+        let m = Matrix7::<f32>::create_rotation_i0i1(consts::FRAC_PI_6.into());
+        let v = Vector7::<f32>::new((3.0).sqrt(), -1.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+        let res = m * v;
+        let exp = Vector7::<f32>::new(2.0, 0.0, 3.0, 4.0, 5.0, 6.0, 7.0);
+        
+        assert_eq!(res, exp);
+        
+        let m = Matrix7::<f32>::create_rotation_i3i6(consts::FRAC_PI_4.into());
+        let v = Vector7::<f32>::new(1.0, 2.0, 3.0, 1.0, 5.0, 6.0, -1.0);
+        let res = m * v;
+        let exp = Vector7::<f32>::new(1.0, 2.0, 3.0, consts::SQRT_2, 5.0, 6.0, 0.0);
+        
+        assert_eq!(res, exp);
+    }
+    #[test]
+    fn scale_v()
+    {
+        let s_v = Vector7::<f32>::new(4.5, 7.7, 3.0, 2.0, 1.9, 12.3, -5.0);
+        let m = Matrix7::create_scale_v7(s_v);
+        let mul = Vector7::<f32>::new(2.1, -3.4, 5.5, 6.7, 0.2, -14.0, 2.0);
+        let res = m * mul;
+        let exp = Vector7::<f32>::new(9.45, -26.18, 16.5, 13.4, 0.38, -172.2, -10.0);
+        
+        assert_eq!(res, exp);
+    }
+    
+    #[test]
+    fn trans_v()
+    {
+        let t_v = Vector7::new(1, 2, 3, 4, 5, 6, 7);
+        let m = Matrix7::create_scale_v7(t_v);
+        let mul = Vector7::new(7, 19, 3, 2, 0, 1, 6);
+        let res = m * mul;
+        let exp = Vector7::new(7, 38, 9, 8, 0, 6, 42);
+        
+        assert_eq!(res, exp);
     }
 }
