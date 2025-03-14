@@ -3,6 +3,8 @@ mod def;
 #[cfg(test)]
 mod vector_tests
 {
+    use zs_core::Vector;
+
     use crate::def::*;
     // use zs_core;
     
@@ -50,5 +52,45 @@ mod vector_tests
         
         let mult = vec * mat;
         assert_eq!(r, mult);
+    }
+    
+    #[test]
+    fn dot()
+    {
+        let l = Vector7::new(1, -4, 3, 7, 2, -19, 5);
+        let r = Vector7::new(-3, 14, 15, 2, -7, 5, 4);
+        
+        let res = l.dot(r);
+        let exp = -89;
+        assert_eq!(res, exp);
+    }
+    #[test]
+    fn squared_length()
+    {
+        let l = Vector7::new(1, -4, 3, 7, 2, -19, 5);
+        
+        let res = l.squared_length();
+        let exp = 465;
+        assert_eq!(res, exp);
+    }
+    #[test]
+    fn squared_dist()
+    {
+        let l = Vector7::new(1, -4, 3, 7, 2, -19, 5);
+        let r = Vector7::new(5, 6, 9, 2, 14, -3, 7);
+        
+        let res = l.squared_distance(r);
+        let exp = 581;
+        assert_eq!(res, exp);
+    }
+    #[test]
+    fn lerp()
+    {
+        let l = Vector7::new(1, -4, 3, 7, 2, -19, 5);
+        let r = Vector7::new(5, 6, 9, 2, 14, -3, 7);
+        
+        let res = l.lerp(r, 3);
+        let exp = Vector7::new(13, 26, 21, -8, 38, 29, 11);
+        assert_eq!(res, exp);
     }
 }
