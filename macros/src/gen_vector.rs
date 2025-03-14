@@ -147,6 +147,19 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
                 return #(self.#args * other.#args)+* ;
             }
         }
+        impl<S: num_traits::Float + Copy> #name<S>
+        {
+            #[inline]
+            pub fn infinity() -> Self
+            {
+                return Self { #(#args: S::infinity()),* };
+            }
+            #[inline]
+            pub fn neg_infinity() -> Self
+            {
+                return Self { #(#args: S::neg_infinity()),* };
+            }
+        }
         impl<S: num_traits::Zero + PartialEq> num_traits::Zero for #name<S>
         {
             #[inline]
