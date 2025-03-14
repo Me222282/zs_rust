@@ -4,7 +4,7 @@ use zs_core::*;
 
 use crate::Vector2;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub struct Line2<S>
 {
     pub dir: Vector2<S>,
