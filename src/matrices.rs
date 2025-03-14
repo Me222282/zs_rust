@@ -1,5 +1,4 @@
-use zs_core::Radian;
-use zs_core::Float;
+use zs_core::*;
 use zs_macros::{generate_matrix, generate_matrix_multiply};
 
 use crate::real;

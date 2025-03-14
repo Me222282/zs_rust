@@ -139,62 +139,12 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
         // }
         
         impl<S: core::ops::Sub<Output = S> + core::ops::Add<Output = S> +
-            core::ops::Mul<Output = S> + Sized> #name<S>
-            where Self: Copy
+            core::ops::Mul<Output = S> + Sized + Copy> zs_core::VectorInt<S> for #name<S>
         {
             #[inline]
-            pub fn dot(self, other: Self) -> S
+            fn dot(self, other: Self) -> S
             {
                 return #(self.#args * other.#args)+* ;
-            }
-            #[inline]
-            pub fn squared_length(self) -> S
-            {
-                return self.dot(self);
-            }
-            #[inline]
-            pub fn squared_distance(self, other: Self) -> S
-            {
-                return (other - self).squared_length();
-            }
-            #[inline]
-            pub fn lerp(self, other: Self, blend: S) -> Self
-                where S: Copy
-            {
-                return Self
-                {
-                    #(#args: (blend * (self.#args - other.#args)) + other.#args),*
-                };
-            }
-            #[inline]
-            pub fn bary_centric(self, b: Self, c: Self, u: S, v: S) -> Self
-                where S: Copy
-            {
-                return (self + ((b - self) * u)) + ((c - self) * v);
-            }
-        }
-        impl<S: num_traits::Float> #name<S>
-            where Self: Copy
-        {
-            #[inline]
-            pub fn length(self) -> S
-            {
-                return self.squared_length().sqrt();
-            }
-            #[inline]
-            pub fn distance(self, other: Self) -> S
-            {   
-                return self.squared_distance(other).sqrt();
-            }
-            #[inline]
-            pub fn normalised(self) -> Self
-                where S: Copy
-            {
-                let scale = S::one() / self.length();
-                return Self
-                {
-                    #(#args: self.#args * scale),*
-                };
             }
         }
         impl<S: num_traits::Zero + PartialEq> num_traits::Zero for #name<S>

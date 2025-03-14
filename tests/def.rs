@@ -1,4 +1,5 @@
-use zs_macros::{generate_matrix, generate_matrix_multiply, generate_vector};
+// use zs_macros::{generate_matrix, generate_matrix_multiply, generate_vector};
+use zene_structs::*;
 
 #[generate_vector(7)]
 pub struct Vector7 {}
