@@ -1,4 +1,4 @@
-use std::ops::Neg;
+use std::ops::{Sub, Mul, Neg};
 
 use zs_core::Radian;
 use zs_macros::generate_vector;
@@ -68,5 +68,12 @@ impl<S: zs_core::Float> Vector2<S>
             x: (vec.x * cos) - (vec.y * sin) + point.x,
             y: (vec.x * sin) + (vec.y * cos) + point.y
         };
+    }
+}
+impl<S: Copy + Sub<Output = S> + Mul<Output = S>> Vector2<S>
+{
+    pub fn perp_dot(self, other: Self) -> S
+    {
+        return self.x * other.y - self.y * other.x; 
     }
 }
