@@ -24,7 +24,7 @@ impl Error for SliceToVectorError {
     }
 }
 
-pub trait VectorInt<S>: Add<Output = Self> + Sub<Output = Self> + Mul<S, Output = Self> + Sized + Copy
+pub trait Vector<S>: Add<Output = Self> + Sub<Output = Self> + Mul<S, Output = Self> + Sized + Copy
 {
     fn dot(self, other: Self) -> S;
     
@@ -47,29 +47,22 @@ pub trait VectorInt<S>: Add<Output = Self> + Sub<Output = Self> + Mul<S, Output 
     {
         return (self + ((b - self) * u)) + ((c - self) * v);
     }
-}
-pub trait VectorFloat<S>: VectorInt<S>
-{
-    fn length(self) -> S;
-    fn distance(self, other: Self) -> S;
-    fn normalised(self) -> Self;
-}
-
-impl<S: Float, T: VectorInt<S>> VectorFloat<S> for T
-{
+    
     #[inline]
     fn length(self) -> S
+        where S: Float
     {
         return self.squared_length().sqrt();
     }
     #[inline]
     fn distance(self, other: Self) -> S
+        where S: Float
     {   
         return self.squared_distance(other).sqrt();
     }
     #[inline]
     fn normalised(self) -> Self
-        where S: Copy
+        where S: Copy + Float
     {
         let scale = S::one() / self.length();
         return self * scale;

@@ -139,7 +139,7 @@ pub(crate) fn gen_vector(attr: TokenStream, input: &mut ItemStruct) -> proc_macr
         // }
         
         impl<S: core::ops::Sub<Output = S> + core::ops::Add<Output = S> +
-            core::ops::Mul<Output = S> + Sized + Copy> zs_core::VectorInt<S> for #name<S>
+            core::ops::Mul<Output = S> + Sized + Copy> zs_core::Vector<S> for #name<S>
         {
             #[inline]
             fn dot(self, other: Self) -> S
